@@ -89,6 +89,34 @@ export default function LoginPage() {
             >
               {loading ? "Authenticating..." : "Sign In"}
             </button>
+
+            <button
+              type="button"
+              onClick={async () => {
+                setLoading(true);
+                setError(null);
+                const { error } = await supabase.auth.signUp({
+                  email,
+                  password,
+                  options: {
+                    data: {
+                      full_name: 'Admin',
+                    }
+                  }
+                });
+                if (error) {
+                  setError(error.message);
+                } else {
+                  setError("Account created! You may need to confirm your email or try signing in now.");
+                }
+                setLoading(false);
+              }}
+              disabled={loading}
+              className="w-full py-4 bg-transparent border border-brand-midnight text-brand-midnight font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-brand-midnight/5 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none mt-4"
+            >
+              Temporary Sign Up
+            </button>
+
           </form>
         </div>
         
