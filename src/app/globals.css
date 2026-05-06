@@ -19,27 +19,27 @@ body {
 
 /* Tiptap / Prose Styling Overrides */
 .prose {
-  @apply max-w-none;
+  @apply max-w-none font-sans;
 }
 
 .prose h1 {
-  @apply text-4xl font-display font-bold mb-6 text-brand-midnight;
+  @apply text-[26px] font-display font-bold mb-6 text-brand-midnight leading-tight;
 }
 
 .prose h2 {
-  @apply text-2xl font-display font-bold mb-4 mt-8 text-brand-midnight;
+  @apply text-[22px] font-display font-bold mb-4 mt-8 text-brand-midnight leading-tight;
 }
 
 .prose h3 {
-  @apply text-xl font-display font-bold mb-3 mt-6 text-brand-midnight;
+  @apply text-[18px] font-display font-bold mb-3 mt-6 text-brand-midnight leading-tight;
 }
 
 .prose p {
-  @apply text-lg leading-relaxed mb-4 text-brand-midnight/80;
+  @apply text-[16px] md:text-[15px] leading-[1.7] mb-6 text-brand-midnight/80;
 }
 
 .prose img {
-  @apply rounded-3xl border border-brand-border shadow-md my-8 transition-all;
+  @apply rounded-2xl border border-brand-border shadow-sm my-8 transition-all;
 }
 
 .prose img.align-center {
@@ -47,35 +47,51 @@ body {
 }
 
 .prose img.align-left {
-  @apply mr-auto ml-0;
+  @apply mr-6 mb-6 float-left clear-left;
 }
 
 .prose img.align-right {
-  @apply ml-auto mr-0;
+  @apply ml-6 mb-6 float-right clear-right;
 }
 
 .prose blockquote {
-  @apply border-l-4 border-brand-green pl-6 italic my-8 text-brand-midnight/60;
+  @apply border-l-4 border-brand-green pl-6 italic my-8 text-brand-midnight/60 text-lg;
 }
 
+/* Fix Lists - Bullets and Numbers should stay outside */
 .prose ul {
-  @apply list-disc list-inside space-y-2 mb-6;
+  @apply list-disc pl-6 space-y-2 mb-6 text-[16px] md:text-[15px] leading-[1.7];
 }
 
 .prose ol {
-  @apply list-decimal list-inside space-y-2 mb-6;
+  @apply list-decimal pl-6 space-y-2 mb-6 text-[16px] md:text-[15px] leading-[1.7];
+}
+
+.prose li p {
+  @apply mb-1; /* Reduce paragraph margin inside lists */
 }
 
 .prose code {
-  @apply bg-brand-cream px-1.5 py-0.5 rounded-md text-brand-accent font-mono text-sm;
+  @apply bg-brand-cream/50 px-1.5 py-0.5 rounded-md text-brand-accent font-mono text-[14px];
 }
 
+/* Syntax Highlighting for Code Blocks */
 .prose pre {
-  @apply bg-brand-midnight text-brand-cream p-6 rounded-2xl font-mono text-sm overflow-x-auto my-8;
+  @apply bg-[#0D1B2A] text-[#F5F0E8] p-6 rounded-2xl font-mono text-[14px] overflow-x-auto my-8 border border-white/5;
 }
+
+.prose pre code {
+  @apply bg-transparent p-0 text-inherit;
+}
+
+.hljs-comment, .hljs-quote { color: #6B7280; font-style: italic; }
+.hljs-keyword, .hljs-selector-tag { color: #1ED490; font-weight: bold; }
+.hljs-string, .hljs-doctag, .hljs-attr { color: #FF6B35; }
+.hljs-type, .hljs-number, .hljs-literal, .hljs-variable { color: #3B82F6; }
+.hljs-title, .hljs-section, .hljs-built_in { color: #EF4444; }
 
 .prose a {
-  @apply text-brand-green underline decoration-brand-green/30 hover:decoration-brand-green transition-all;
+  @apply text-brand-green underline decoration-brand-green/30 hover:decoration-brand-green transition-all font-medium;
 }
 
 /* Custom Selection Color */

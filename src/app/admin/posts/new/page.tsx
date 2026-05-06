@@ -160,14 +160,14 @@ export default function NewPostPage() {
                 placeholder="Post Title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full text-3xl md:text-4xl font-display font-bold border-none p-0 focus:ring-0 placeholder:text-brand-border/40 bg-transparent leading-tight"
+                className="w-full text-[24px] md:text-[28px] lg:text-[32px] font-display font-bold border-none p-0 focus:ring-0 placeholder:text-brand-border/40 bg-transparent leading-tight text-brand-midnight"
               />
               <textarea 
                 placeholder="Brief subtitle or description..."
                 value={subtitle}
                 onChange={(e) => setSubtitle(e.target.value)}
                 rows={2}
-                className="w-full text-lg font-sans text-brand-midnight/50 border-none p-0 focus:ring-0 placeholder:text-brand-border/40 bg-transparent resize-none italic leading-relaxed"
+                className="w-full text-[14px] md:text-[15px] lg:text-[16px] font-sans font-medium text-brand-midnight/60 border-none p-0 focus:ring-0 placeholder:text-brand-border/40 bg-transparent resize-none leading-relaxed"
               />
             </div>
 

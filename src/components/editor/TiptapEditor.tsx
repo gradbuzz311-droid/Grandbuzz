@@ -10,6 +10,9 @@ import Color from "@tiptap/extension-color";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Highlight from "@tiptap/extension-highlight";
 import TextAlign from "@tiptap/extension-text-align";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { createLowlight, common } from "lowlight";
+
 import { 
   Bold, Italic, Underline as UnderlineIcon, Strikethrough, 
   Heading1, Heading2, Heading3, List, ListOrdered, 
@@ -18,6 +21,8 @@ import {
   Palette
 } from "lucide-react";
 import { useState, useRef } from "react";
+
+const lowlight = createLowlight(common);
 
 interface TiptapEditorProps {
   content: string;
@@ -39,7 +44,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
 
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        codeBlock: false, // Disable default code block to use lowlight version
+      }),
       Underline,
       Image.configure({
         inline: true,
@@ -56,6 +63,9 @@ const TiptapEditor = ({ content, onChange }: TiptapEditorProps) => {
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({
         types: ['heading', 'paragraph', 'image'],
+      }),
+      CodeBlockLowlight.configure({
+        lowlight,
       }),
     ],
     content,
@@ -272,4 +282,5 @@ const ToolbarButton = ({ onClick, active, icon, title }: { onClick: () => void, 
 );
 
 export default TiptapEditor;
+
 
