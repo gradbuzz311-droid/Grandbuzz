@@ -273,20 +273,3 @@ const ToolbarButton = ({ onClick, active, icon, title }: { onClick: () => void, 
 
 export default TiptapEditor;
 
-
-const ToolbarButton = ({ onClick, active, icon, title }: { onClick: () => void, active?: boolean, icon: React.ReactNode, title: string }) => (
-  <button
-    type="button"
-    onClick={onClick}
-    title={title}
-    className={`p-2 rounded-lg transition-all ${
-      active 
-        ? "bg-brand-green text-brand-midnight shadow-sm" 
-        : "text-brand-midnight/60 hover:bg-brand-cream hover:text-brand-midnight"
-    }`}
-  >
-    {icon}
-  </button>
-);
-
-export default TiptapEditor;
