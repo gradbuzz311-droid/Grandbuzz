@@ -48,8 +48,8 @@ CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.
 
 -- Policies for Categories
 CREATE POLICY "Categories are viewable by everyone" ON categories FOR SELECT USING (true);
-CREATE POLICY "Only admins can manage categories" ON categories FOR ALL USING (
-  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
+CREATE POLICY "Admins/Editors can manage categories" ON categories FOR ALL USING (
+  EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role IN ('admin', 'editor'))
 );
 
 -- Policies for Posts

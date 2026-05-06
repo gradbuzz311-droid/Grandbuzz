@@ -88,7 +88,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
 
     const { data, error } = await supabase
       .from('categories')
-      .insert({ name: newCategoryName.trim() })
+      .insert({ 
+        name: newCategoryName.trim(),
+        slug: newCategoryName.trim().toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '')
+      })
       .select()
       .single();
 
