@@ -16,3 +16,70 @@ body {
   background-color: var(--color-brand-cream);
   color: var(--color-brand-midnight);
 }
+
+/* Tiptap / Prose Styling Overrides */
+.prose {
+  @apply max-w-none;
+}
+
+.prose h1 {
+  @apply text-4xl font-display font-bold mb-6 text-brand-midnight;
+}
+
+.prose h2 {
+  @apply text-2xl font-display font-bold mb-4 mt-8 text-brand-midnight;
+}
+
+.prose h3 {
+  @apply text-xl font-display font-bold mb-3 mt-6 text-brand-midnight;
+}
+
+.prose p {
+  @apply text-lg leading-relaxed mb-4 text-brand-midnight/80;
+}
+
+.prose img {
+  @apply rounded-3xl border border-brand-border shadow-md my-8 transition-all;
+}
+
+.prose img.align-center {
+  @apply mx-auto;
+}
+
+.prose img.align-left {
+  @apply mr-auto ml-0;
+}
+
+.prose img.align-right {
+  @apply ml-auto mr-0;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-brand-green pl-6 italic my-8 text-brand-midnight/60;
+}
+
+.prose ul {
+  @apply list-disc list-inside space-y-2 mb-6;
+}
+
+.prose ol {
+  @apply list-decimal list-inside space-y-2 mb-6;
+}
+
+.prose code {
+  @apply bg-brand-cream px-1.5 py-0.5 rounded-md text-brand-accent font-mono text-sm;
+}
+
+.prose pre {
+  @apply bg-brand-midnight text-brand-cream p-6 rounded-2xl font-mono text-sm overflow-x-auto my-8;
+}
+
+.prose a {
+  @apply text-brand-green underline decoration-brand-green/30 hover:decoration-brand-green transition-all;
+}
+
+/* Custom Selection Color */
+::selection {
+  @apply bg-brand-green/30 text-brand-midnight;
+}
+

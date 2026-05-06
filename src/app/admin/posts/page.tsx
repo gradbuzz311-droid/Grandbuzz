@@ -122,6 +122,7 @@ export default function PostsPage() {
                     <div className="absolute right-0 top-10 w-40 bg-white border border-brand-border rounded-xl shadow-xl z-50 py-2 animate-in fade-in zoom-in-95 duration-200">
                       <Link 
                         href={`/admin/posts/${post.id}/edit`}
+                        target="_blank"
                         className="flex items-center gap-3 px-4 py-2 text-sm font-medium text-brand-midnight hover:bg-brand-cream transition-colors"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

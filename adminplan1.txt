@@ -1,237 +1,187 @@
-Design a modern, clean admin panel UI for a blog platform called "GradBuzz".
+Design and implement a fully functional blog editor UI for "GradBuzz" admin panel.
 
-IMPORTANT:
-- Do NOT show "GradBuzz Admin" text in the header.
-- The logo itself already includes both icon + text (GradBuzz).
-- Keep UI minimal, sharp, and product-grade (inspired by Notion, Linear, YouTube Studio).
+This is NOT just visual design — all controls must behave correctly.
 
 -----------------------------------
-🎨 BRAND SYSTEM
------------------------------------
-Colors:
-- Background: #F5F0E8 (Cream)
-- Primary Text: #0D1B2A (Midnight)
-- Accent / CTA: #1ED490 (Buzz Green)
-- Highlight: #FF6B35 (Orange)
-- Borders: #E8E0D5
-
-Typography:
-- Headings: Syne Bold
-- Body: DM Sans
-- Accent: Fraunces Italic (only where needed)
-
-Style:
-- Flat UI
-- No gradients
-- No heavy shadows
-- Clean spacing, strong hierarchy
-
------------------------------------
-💻 LAYOUT (DESKTOP / LAPTOP FIRST)
+⚠️ CRITICAL FIXES (MUST ADDRESS)
 -----------------------------------
 
-Main Structure:
-- Left Sidebar (fixed)
-- Top Header (minimal)
-- Main Content Area (dynamic)
+1. IMAGE PREVIEW ISSUE
+- When user uploads an image from local system:
+  ✅ Show instant preview (no broken image)
+  ✅ Use local file preview (not external URL dependency)
+- Must support:
+  - Thumbnail preview (top section)
+  - Inline image preview inside editor
 
 -----------------------------------
-📌 SIDEBAR (DESKTOP)
------------------------------------
 
-- Fixed vertical sidebar on left
-- Width: medium (not too wide)
+2. COLOR PICKER (SIMPLIFY UX)
+- Do NOT require manual hex code input
 
-Content:
-1. Logo at top
-2. Navigation items:
-   - Dashboard
-   - Posts
+Provide:
+✅ Color picker (visual palette / color wheel)
+✅ Predefined swatches:
+   - Black, Gray, Mint (#1ED490), Orange (#FF6B35), Red, Blue
 
-Design:
-- Active item highlighted with mint green indicator or background
-- Icons + text (clean line icons)
-- Subtle hover effects
+Apply to:
+- Text color
+- Background highlight
 
 -----------------------------------
-📱 MOBILE / TABLET BEHAVIOR
------------------------------------
 
-- Sidebar collapses into hamburger menu
-- Hamburger icon in top-left
-- Clicking opens slide-in menu from left
+3. TITLE SIZE (FIX HIERARCHY)
+- Current title is too large
 
-Tablet:
-- Slightly compact sidebar OR collapsible
-
-Mobile:
-- Full overlay drawer menu
+Update:
+✅ Title = large but controlled (not oversized hero)
+✅ Subtitle smaller and clean
+✅ Maintain readability, not dominance
 
 -----------------------------------
-📌 HEADER (TOP BAR)
------------------------------------
 
-- Left: Hamburger (mobile only)
-- Center/Left: Empty or minimal
-- Right: Profile icon/avatar
+4. CUSTOM CATEGORIES (IMPORTANT)
+- Add ability to:
+  ✅ Select existing categories
+  ✅ Create new category inline (type + press enter)
 
-NO "GradBuzz Admin" text
-
------------------------------------
-📊 DASHBOARD PAGE
------------------------------------
-
-For now:
-- Just display large heading:
-  "Dashboard"
-
-(Keep it clean, placeholder state)
+Example:
+Input: "AI Tools" → creates new tag
 
 -----------------------------------
-📝 POSTS PAGE (CORE SCREEN)
+
+5. EDITOR TOOLBAR (FUNCTIONAL — NOT JUST UI)
 -----------------------------------
 
-Layout:
-- Top:
-  - Page title: "Posts"
-  - Right side: "New Post" button (primary CTA, mint green)
-
-Below:
-- List of posts (similar to YouTube Studio)
-
-Each Post Row/Card includes:
-- Thumbnail (left)
-- Title (bold)
-- Description (short, truncated with "...")
-- Optional: date or views (small text)
-
-Right Side:
-- 3-dot menu (vertical ellipsis)
-
-On clicking 3-dot menu:
-Options:
-1. Edit
-2. Delete
-
-Interactions:
-- Hover highlights row
-- Smooth dropdown menu
-
------------------------------------
-➕ NEW POST BUTTON
------------------------------------
-
-- Positioned top-right
-- On click:
-👉 Opens NEW TAB (important)
-
------------------------------------
-✍️ CREATE / EDIT POST PAGE
------------------------------------
-
-Layout:
-Clean editor interface (Notion / Medium style)
-
------------------------------------
-TOP SECTION:
------------------------------------
-- Title input (large, bold)
-- Subtitle / description input
-
------------------------------------
-FORM FIELDS:
------------------------------------
-1. Thumbnail Upload
-   - Upload image
-   - Preview visible
-
-2. Title Input
-
-3. Description Input
-
-4. Main Content Editor (IMPORTANT SECTION)
-
------------------------------------
-🧠 RICH TEXT EDITOR FEATURES
------------------------------------
-
-Toolbar should include:
+All buttons MUST WORK correctly.
 
 Text Formatting:
-- Bold
-- Italic
+- Bold → applies/removes bold properly
+- Italic → applies/removes italic
 - Underline
 - Strikethrough
 
-Structure:
-- Headings (H1, H2, H3)
+Headings:
+- H1, H2, H3 toggle properly
+- Should not break layout
+
+Lists:
 - Bullet list
 - Numbered list
-- Blockquote
-
-Styling:
-- Text color
-- Background highlight color
-
-Insert:
-- Image upload (VERY IMPORTANT)
-- Code block (basic)
+- Proper indentation handling
 
 -----------------------------------
-🖼️ IMAGE HANDLING (INSIDE CONTENT)
+
+6. TEXT EDITOR BEHAVIOR
 -----------------------------------
 
-User can insert images inside the content.
-
-Image controls:
-- Resize (small / medium / full width)
-- Alignment options:
-  1. Left (image left, text wraps right)
-  2. Right (image right, text wraps left)
-  3. Center (image center, no wrap)
-
-Keep controls simple and intuitive.
+- Cursor should behave correctly after formatting
+- No glitches when switching styles
+- Pressing Enter should:
+  - Continue list if inside list
+  - Create new paragraph otherwise
 
 -----------------------------------
-⚙️ RIGHT SIDEBAR (OPTIONAL BUT PREFERRED)
+
+7. IMAGE INSERT (INSIDE CONTENT)
 -----------------------------------
 
-Include:
-- Category / tags selection
-- Publish / Draft toggle
-- SEO fields (meta title, description)
+Must support:
+
+Upload:
+- Direct local upload
+
+Preview:
+- Image visible instantly
+
+Controls (on image click):
+- Resize:
+  - Small
+  - Medium
+  - Full width
+
+Alignment:
+- Left (text wraps right)
+- Right (text wraps left)
+- Center (no wrapping)
+
+UI:
+- Show simple floating toolbar when image selected
 
 -----------------------------------
-📱 RESPONSIVENESS
+
+8. NEW POST FLOW
+-----------------------------------
+
+- Clicking "New Post":
+  ✅ Opens in NEW TAB
+  ✅ Loads empty editor cleanly
+
+-----------------------------------
+
+9. DESCRIPTION HANDLING
+-----------------------------------
+
+- In posts list:
+  ✅ Truncate long descriptions with "..."
+  ✅ Keep rows clean and aligned
+
+-----------------------------------
+
+10. POSTS LIST ACTION MENU
+-----------------------------------
+
+- 3-dot menu must:
+  ✅ Open on click
+  ✅ Show:
+     - Edit
+     - Delete
+  ✅ Close on outside click
+
+-----------------------------------
+
+11. RESPONSIVENESS
 -----------------------------------
 
 Desktop:
-- Full layout (sidebar + editor + optional right panel)
+- Full editor + optional right panel
 
 Tablet:
-- Sidebar collapsible
-- Editor full width
+- Simplified layout
 
 Mobile:
-- Single column layout
-- Toolbar simplified
-- Sidebar as hamburger menu
+- Single column
+- Toolbar scrollable horizontally
 
 -----------------------------------
-🎯 UX PRINCIPLES
+
+12. PERFORMANCE + UX
 -----------------------------------
 
-- Fast and distraction-free
-- Minimal but powerful
-- Clear hierarchy
-- No clutter
-- Feels like a real SaaS product, not a student project
+- No lag when typing
+- Formatting must feel instant
+- No UI flickering
+- Smooth interactions
 
 -----------------------------------
+
+🎯 FINAL GOAL
+-----------------------------------
+
+Editor should feel like:
+- Google Docs (basic)
+- Notion (clean)
+- Medium (writing experience)
+
+NOT like:
+- broken form
+- static UI mockup
+
+-----------------------------------
+
 OUTPUT REQUIREMENT
 -----------------------------------
 
-- High-fidelity UI
-- Clean spacing and alignment
-- Consistent typography
-- Production-ready look
+- Functional UI (not just visual)
+- Clean layout + working interactions
+- Realistic editor behavior
