@@ -15,7 +15,8 @@ import {
   Save, 
   Globe,
   Trash2,
-  Plus
+  Plus,
+  Clock
 } from "lucide-react";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
@@ -35,6 +36,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [metaDescription, setMetaDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string>("reader");
 
   // Fetch initial data
   useEffect(() => {
@@ -66,6 +68,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         alert("Post not found");
         router.push("/admin/posts");
       }
+      // Fetch user role
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        if (data) setUserRole(data.role);
+      }
+
       setIsLoading(false);
     }
     fetchData();
@@ -180,7 +189,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             disabled={isSaving}
             className="flex items-center gap-2 px-6 py-2 bg-brand-green text-brand-midnight text-sm font-bold rounded-xl shadow-sm hover:bg-brand-green/90 transition-all disabled:opacity-50"
           >
-            {isSaving ? "Saving..." : "Save Changes"}
+            {status === 'published' ? <Globe size={18} /> : status === 'pending' ? <Clock size={18} /> : <Save size={18} />}
+            {isSaving ? "Saving..." : 
+             status === 'published' ? "Publish Changes" : 
+             status === 'pending' ? "Submit for Review" : 
+             "Save Changes"}
           </button>
         </div>
       </header>
@@ -258,11 +271,19 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 Draft
               </button>
               <button 
-                onClick={() => setStatus('published')}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'published' ? 'bg-brand-green text-brand-midnight shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
+                onClick={() => setStatus('pending')}
+                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
               >
-                Publish
+                Review
               </button>
+              {userRole === 'admin' && (
+                <button 
+                  onClick={() => setStatus('published')}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'published' ? 'bg-brand-green text-brand-midnight shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
+                >
+                  Publish
+                </button>
+              )}
             </div>
           </div>
 

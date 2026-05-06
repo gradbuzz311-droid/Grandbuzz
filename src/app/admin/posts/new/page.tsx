@@ -14,7 +14,8 @@ import {
   Eye, 
   Save, 
   Globe,
-  Plus
+  Plus,
+  Clock
 } from "lucide-react";
 
 export default function NewPostPage() {
@@ -32,6 +33,19 @@ export default function NewPostPage() {
   const [slug, setSlug] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [userRole, setUserRole] = useState<string>("reader");
+
+  // Fetch user role
+  useEffect(() => {
+    async function fetchUserRole() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        if (data) setUserRole(data.role);
+      }
+    }
+    fetchUserRole();
+  }, [supabase]);
 
   // Fetch categories
   useEffect(() => {
@@ -146,8 +160,11 @@ export default function NewPostPage() {
             disabled={isSaving}
             className="flex items-center gap-2 px-6 py-2 bg-brand-green text-brand-midnight text-sm font-bold rounded-xl shadow-sm hover:bg-brand-green/90 transition-all disabled:opacity-50"
           >
-            {status === 'published' ? <Globe size={18} /> : <Save size={18} />}
-            {isSaving ? "Saving..." : status === 'published' ? "Publish" : "Save Draft"}
+            {status === 'published' ? <Globe size={18} /> : status === 'pending' ? <Clock size={18} /> : <Save size={18} />}
+            {isSaving ? "Saving..." : 
+             status === 'published' ? "Publish" : 
+             status === 'pending' ? "Submit for Review" : 
+             "Save Draft"}
           </button>
         </div>
       </header>
@@ -225,11 +242,19 @@ export default function NewPostPage() {
                 Draft
               </button>
               <button 
-                onClick={() => setStatus('published')}
-                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'published' ? 'bg-brand-green text-brand-midnight shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
+                onClick={() => setStatus('pending')}
+                className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'pending' ? 'bg-orange-500 text-white shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
               >
-                Publish
+                Review
               </button>
+              {userRole === 'admin' && (
+                <button 
+                  onClick={() => setStatus('published')}
+                  className={`flex-1 py-2.5 text-xs font-bold rounded-lg transition-all ${status === 'published' ? 'bg-brand-green text-brand-midnight shadow-sm' : 'text-brand-midnight/40 hover:text-brand-midnight'}`}
+                >
+                  Publish
+                </button>
+              )}
             </div>
           </div>
 

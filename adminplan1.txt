@@ -1,187 +1,289 @@
-Design and implement a fully functional blog editor UI for "GradBuzz" admin panel.
-
-This is NOT just visual design — all controls must behave correctly.
+Build a complete contributor-based blog platform admin system for "GradBuzz".
 
 -----------------------------------
-⚠️ CRITICAL FIXES (MUST ADDRESS)
+🧠 PRODUCT VISION
 -----------------------------------
 
-1. IMAGE PREVIEW ISSUE
-- When user uploads an image from local system:
-  ✅ Show instant preview (no broken image)
-  ✅ Use local file preview (not external URL dependency)
-- Must support:
-  - Thumbnail preview (top section)
-  - Inline image preview inside editor
+GradBuzz is a curated student knowledge platform.
+
+Goal:
+- Only verified professionals (developers, professors, placed students) can write blogs
+- Maintain HIGH QUALITY content
+- Not an open blogging platform
+
+Model:
+- Closed contributor system (permission-based writing)
+- Admin-controlled publishing
 
 -----------------------------------
-
-2. COLOR PICKER (SIMPLIFY UX)
-- Do NOT require manual hex code input
-
-Provide:
-✅ Color picker (visual palette / color wheel)
-✅ Predefined swatches:
-   - Black, Gray, Mint (#1ED490), Orange (#FF6B35), Red, Blue
-
-Apply to:
-- Text color
-- Background highlight
-
+👥 USER ROLES
 -----------------------------------
 
-3. TITLE SIZE (FIX HIERARCHY)
-- Current title is too large
+1. Admin
+- Full access
+- Approves contributors
+- Reviews and publishes posts
 
-Update:
-✅ Title = large but controlled (not oversized hero)
-✅ Subtitle smaller and clean
-✅ Maintain readability, not dominance
+2. Contributor (Verified User)
+- Can write posts
+- Can save drafts
+- Cannot publish directly
+- Must submit for approval
 
------------------------------------
-
-4. CUSTOM CATEGORIES (IMPORTANT)
-- Add ability to:
-  ✅ Select existing categories
-  ✅ Create new category inline (type + press enter)
-
-Example:
-Input: "AI Tools" → creates new tag
+3. Reader
+- Public user
+- Can only read content
 
 -----------------------------------
-
-5. EDITOR TOOLBAR (FUNCTIONAL — NOT JUST UI)
+🔁 CORE WORKFLOW
 -----------------------------------
 
-All buttons MUST WORK correctly.
-
-Text Formatting:
-- Bold → applies/removes bold properly
-- Italic → applies/removes italic
-- Underline
-- Strikethrough
-
-Headings:
-- H1, H2, H3 toggle properly
-- Should not break layout
-
-Lists:
-- Bullet list
-- Numbered list
-- Proper indentation handling
+1. User applies to become contributor
+2. Admin reviews application
+3. Admin approves or rejects
+4. Approved user becomes Contributor
+5. Contributor writes post
+6. Submits for review
+7. Admin publishes
 
 -----------------------------------
-
-6. TEXT EDITOR BEHAVIOR
+🖥️ ADMIN PANEL UI (DESKTOP FIRST)
 -----------------------------------
 
-- Cursor should behave correctly after formatting
-- No glitches when switching styles
-- Pressing Enter should:
-  - Continue list if inside list
-  - Create new paragraph otherwise
+Layout:
+- Left Sidebar (fixed)
+- Top Header (minimal)
+- Main Content Area
 
 -----------------------------------
-
-7. IMAGE INSERT (INSIDE CONTENT)
+📌 SIDEBAR
 -----------------------------------
 
-Must support:
+Items:
+- Dashboard
+- Posts
+- Contributors
+- Applications
 
-Upload:
-- Direct local upload
-
-Preview:
-- Image visible instantly
-
-Controls (on image click):
-- Resize:
-  - Small
-  - Medium
-  - Full width
-
-Alignment:
-- Left (text wraps right)
-- Right (text wraps left)
-- Center (no wrapping)
-
-UI:
-- Show simple floating toolbar when image selected
+Design:
+- Clean, minimal
+- Active item highlighted
+- Icons + text
 
 -----------------------------------
-
-8. NEW POST FLOW
------------------------------------
-
-- Clicking "New Post":
-  ✅ Opens in NEW TAB
-  ✅ Loads empty editor cleanly
-
------------------------------------
-
-9. DESCRIPTION HANDLING
------------------------------------
-
-- In posts list:
-  ✅ Truncate long descriptions with "..."
-  ✅ Keep rows clean and aligned
-
------------------------------------
-
-10. POSTS LIST ACTION MENU
------------------------------------
-
-- 3-dot menu must:
-  ✅ Open on click
-  ✅ Show:
-     - Edit
-     - Delete
-  ✅ Close on outside click
-
------------------------------------
-
-11. RESPONSIVENESS
+📱 RESPONSIVENESS
 -----------------------------------
 
 Desktop:
-- Full editor + optional right panel
+- Full sidebar
 
 Tablet:
-- Simplified layout
+- Collapsible sidebar
 
 Mobile:
-- Single column
+- Hamburger menu
+- Slide-in drawer
+
+-----------------------------------
+📊 DASHBOARD
+-----------------------------------
+
+Simple stats:
+- Total posts
+- Pending posts
+- Contributors count
+- Applications pending
+
+-----------------------------------
+📝 POSTS MANAGEMENT
+-----------------------------------
+
+List view (like YouTube Studio):
+
+Each row:
+- Thumbnail
+- Title
+- Description (truncate with "...")
+- Status:
+  - Draft
+  - Pending Review
+  - Published
+
+Right side:
+- 3-dot menu:
+  - Edit
+  - Delete
+  - Publish (only if admin)
+
+Top right:
+- "New Post" button → opens in NEW TAB
+
+-----------------------------------
+✍️ EDITOR (CREATE / EDIT POST)
+-----------------------------------
+
+Fields:
+- Thumbnail upload (with preview)
+- Title (moderate size, not oversized)
+- Description
+- Content editor
+
+Editor Features:
+- Bold, Italic, Underline, Strikethrough
+- Headings (H1, H2, H3)
+- Bullet & Numbered lists
+- Blockquote
+- Text color + background (with color picker UI)
+- Image upload (local preview, no broken links)
+
+Image Controls:
+- Resize: small / medium / full
+- Align: left / right / center
+
+Right Sidebar:
+- Category / Tags (with custom add option)
+- Status:
+  - Draft
+  - Submit for Review
+- SEO fields
+
+-----------------------------------
+👥 CONTRIBUTORS SCREEN
+-----------------------------------
+
+Table view:
+
+Columns:
+- Name
+- Email
+- Role
+- Status (Active / Removed)
+
+Actions:
+- Remove contributor
+- Change role
+
+Top right:
+- "Invite Contributor" button
+
+-----------------------------------
+➕ INVITE CONTRIBUTOR FLOW
+-----------------------------------
+
+Popup / Page:
+
+Fields:
+- Email
+- Role (Contributor)
+
+Action:
+- Send invite link
+
+-----------------------------------
+📥 APPLICATIONS SCREEN
+-----------------------------------
+
+List of users who applied
+
+Each item:
+- Name
+- Role (e.g. Engineer, Professor)
+- Experience
+- Proposed topic
+
+Actions:
+- Approve
+- Reject
+
+-----------------------------------
+🌐 FRONTEND (TECH EXPECTATION)
+-----------------------------------
+
+- React (recommended)
+- Tailwind CSS for styling
+- Component-based structure
+
+Editor:
+- Use TipTap or Slate.js (for real functionality)
+
+State:
+- Manage using React state or Redux
+
+-----------------------------------
+⚙️ BACKEND (SYSTEM DESIGN)
+-----------------------------------
+
+Use:
+- Node.js / Django / any backend
+
+Database Tables:
+
+Users:
+- id
+- name
+- email
+- role (admin, contributor, reader)
+- status
+
+Posts:
+- id
+- title
+- description
+- content
+- thumbnail
+- author_id
+- status (draft, pending, published)
+- created_at
+
+Applications:
+- id
+- name
+- email
+- role
+- experience
+- topic
+- status (pending, approved, rejected)
+
+-----------------------------------
+🔐 PERMISSIONS LOGIC
+-----------------------------------
+
+Admin:
+- Full control
+
+Contributor:
+- Create + edit own posts
+- Submit for review
+
+Reader:
+- Read only
+
+-----------------------------------
+🎯 UX PRINCIPLES
+-----------------------------------
+
+- Clean and distraction-free
+- Fast interactions
+- No clutter
+- Product-level polish (Notion / Linear style)
+
+-----------------------------------
+📱 MOBILE EXPERIENCE
+-----------------------------------
+
+- Single column layout
 - Toolbar scrollable horizontally
+- Sidebar via hamburger menu
+- Forms optimized for touch
 
 -----------------------------------
-
-12. PERFORMANCE + UX
------------------------------------
-
-- No lag when typing
-- Formatting must feel instant
-- No UI flickering
-- Smooth interactions
-
------------------------------------
-
 🎯 FINAL GOAL
 -----------------------------------
 
-Editor should feel like:
-- Google Docs (basic)
-- Notion (clean)
-- Medium (writing experience)
+Build a scalable, high-quality content platform
+—not just a blog UI.
 
-NOT like:
-- broken form
-- static UI mockup
-
------------------------------------
-
-OUTPUT REQUIREMENT
------------------------------------
-
-- Functional UI (not just visual)
-- Clean layout + working interactions
-- Realistic editor behavior
+Focus on:
+- usability
+- control
+- content quality
