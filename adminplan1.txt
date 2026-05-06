@@ -1,0 +1,237 @@
+Design a modern, clean admin panel UI for a blog platform called "GradBuzz".
+
+IMPORTANT:
+- Do NOT show "GradBuzz Admin" text in the header.
+- The logo itself already includes both icon + text (GradBuzz).
+- Keep UI minimal, sharp, and product-grade (inspired by Notion, Linear, YouTube Studio).
+
+-----------------------------------
+🎨 BRAND SYSTEM
+-----------------------------------
+Colors:
+- Background: #F5F0E8 (Cream)
+- Primary Text: #0D1B2A (Midnight)
+- Accent / CTA: #1ED490 (Buzz Green)
+- Highlight: #FF6B35 (Orange)
+- Borders: #E8E0D5
+
+Typography:
+- Headings: Syne Bold
+- Body: DM Sans
+- Accent: Fraunces Italic (only where needed)
+
+Style:
+- Flat UI
+- No gradients
+- No heavy shadows
+- Clean spacing, strong hierarchy
+
+-----------------------------------
+💻 LAYOUT (DESKTOP / LAPTOP FIRST)
+-----------------------------------
+
+Main Structure:
+- Left Sidebar (fixed)
+- Top Header (minimal)
+- Main Content Area (dynamic)
+
+-----------------------------------
+📌 SIDEBAR (DESKTOP)
+-----------------------------------
+
+- Fixed vertical sidebar on left
+- Width: medium (not too wide)
+
+Content:
+1. Logo at top
+2. Navigation items:
+   - Dashboard
+   - Posts
+
+Design:
+- Active item highlighted with mint green indicator or background
+- Icons + text (clean line icons)
+- Subtle hover effects
+
+-----------------------------------
+📱 MOBILE / TABLET BEHAVIOR
+-----------------------------------
+
+- Sidebar collapses into hamburger menu
+- Hamburger icon in top-left
+- Clicking opens slide-in menu from left
+
+Tablet:
+- Slightly compact sidebar OR collapsible
+
+Mobile:
+- Full overlay drawer menu
+
+-----------------------------------
+📌 HEADER (TOP BAR)
+-----------------------------------
+
+- Left: Hamburger (mobile only)
+- Center/Left: Empty or minimal
+- Right: Profile icon/avatar
+
+NO "GradBuzz Admin" text
+
+-----------------------------------
+📊 DASHBOARD PAGE
+-----------------------------------
+
+For now:
+- Just display large heading:
+  "Dashboard"
+
+(Keep it clean, placeholder state)
+
+-----------------------------------
+📝 POSTS PAGE (CORE SCREEN)
+-----------------------------------
+
+Layout:
+- Top:
+  - Page title: "Posts"
+  - Right side: "New Post" button (primary CTA, mint green)
+
+Below:
+- List of posts (similar to YouTube Studio)
+
+Each Post Row/Card includes:
+- Thumbnail (left)
+- Title (bold)
+- Description (short, truncated with "...")
+- Optional: date or views (small text)
+
+Right Side:
+- 3-dot menu (vertical ellipsis)
+
+On clicking 3-dot menu:
+Options:
+1. Edit
+2. Delete
+
+Interactions:
+- Hover highlights row
+- Smooth dropdown menu
+
+-----------------------------------
+➕ NEW POST BUTTON
+-----------------------------------
+
+- Positioned top-right
+- On click:
+👉 Opens NEW TAB (important)
+
+-----------------------------------
+✍️ CREATE / EDIT POST PAGE
+-----------------------------------
+
+Layout:
+Clean editor interface (Notion / Medium style)
+
+-----------------------------------
+TOP SECTION:
+-----------------------------------
+- Title input (large, bold)
+- Subtitle / description input
+
+-----------------------------------
+FORM FIELDS:
+-----------------------------------
+1. Thumbnail Upload
+   - Upload image
+   - Preview visible
+
+2. Title Input
+
+3. Description Input
+
+4. Main Content Editor (IMPORTANT SECTION)
+
+-----------------------------------
+🧠 RICH TEXT EDITOR FEATURES
+-----------------------------------
+
+Toolbar should include:
+
+Text Formatting:
+- Bold
+- Italic
+- Underline
+- Strikethrough
+
+Structure:
+- Headings (H1, H2, H3)
+- Bullet list
+- Numbered list
+- Blockquote
+
+Styling:
+- Text color
+- Background highlight color
+
+Insert:
+- Image upload (VERY IMPORTANT)
+- Code block (basic)
+
+-----------------------------------
+🖼️ IMAGE HANDLING (INSIDE CONTENT)
+-----------------------------------
+
+User can insert images inside the content.
+
+Image controls:
+- Resize (small / medium / full width)
+- Alignment options:
+  1. Left (image left, text wraps right)
+  2. Right (image right, text wraps left)
+  3. Center (image center, no wrap)
+
+Keep controls simple and intuitive.
+
+-----------------------------------
+⚙️ RIGHT SIDEBAR (OPTIONAL BUT PREFERRED)
+-----------------------------------
+
+Include:
+- Category / tags selection
+- Publish / Draft toggle
+- SEO fields (meta title, description)
+
+-----------------------------------
+📱 RESPONSIVENESS
+-----------------------------------
+
+Desktop:
+- Full layout (sidebar + editor + optional right panel)
+
+Tablet:
+- Sidebar collapsible
+- Editor full width
+
+Mobile:
+- Single column layout
+- Toolbar simplified
+- Sidebar as hamburger menu
+
+-----------------------------------
+🎯 UX PRINCIPLES
+-----------------------------------
+
+- Fast and distraction-free
+- Minimal but powerful
+- Clear hierarchy
+- No clutter
+- Feels like a real SaaS product, not a student project
+
+-----------------------------------
+OUTPUT REQUIREMENT
+-----------------------------------
+
+- High-fidelity UI
+- Clean spacing and alignment
+- Consistent typography
+- Production-ready look

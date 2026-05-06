@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -13,10 +13,12 @@ import {
   Settings, 
   Eye, 
   Save, 
-  Globe 
+  Globe,
+  Trash2
 } from "lucide-react";
 
-export default function NewPostPage() {
+export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const supabase = createClient();
   const router = useRouter();
   
@@ -30,22 +32,42 @@ export default function NewPostPage() {
   const [slug, setSlug] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch categories
+  // Fetch initial data
   useEffect(() => {
-    async function fetchCategories() {
-      const { data } = await supabase.from('categories').select('id, name');
-      if (data) setAvailableCategories(data);
-    }
-    fetchCategories();
-  }, [supabase]);
+    async function fetchData() {
+      // Fetch categories
+      const { data: cats } = await supabase.from('categories').select('id, name');
+      if (cats) setAvailableCategories(cats);
 
-  // Auto-generate slug
-  useEffect(() => {
-    if (title && !slug) {
-      setSlug(title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''));
+      // Fetch post
+      const { data: post, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          categories:post_categories(category_id)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (post) {
+        setTitle(post.title);
+        setContent(post.content);
+        setStatus(post.status);
+        setSlug(post.slug);
+        setThumbnail(post.thumbnail_url);
+        if (post.categories) {
+          setSelectedCategories(post.categories.map((c: any) => c.category_id));
+        }
+      } else {
+        alert("Post not found");
+        router.push("/admin/posts");
+      }
+      setIsLoading(false);
     }
-  }, [title, slug]);
+    fetchData();
+  }, [supabase, id, router]);
 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -62,33 +84,40 @@ export default function NewPostPage() {
     if (!title.trim()) return alert("Please enter a title");
     setIsSaving(true);
     
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) return alert("You must be logged in to save");
-
-    const { data: post, error: postError } = await supabase.from('posts').insert({
+    const { error: postError } = await supabase.from('posts').update({
       title,
       content,
       slug,
       status,
-      author_id: userData.user.id,
       thumbnail_url: thumbnail,
-    }).select().single();
+    }).eq('id', id);
 
     if (postError) {
-      alert("Error saving post: " + postError.message);
+      alert("Error updating post: " + postError.message);
     } else {
+      // Update categories (delete then insert for simplicity)
+      await supabase.from('post_categories').delete().eq('post_id', id);
       if (selectedCategories.length > 0) {
         const categoryLinks = selectedCategories.map(catId => ({
-          post_id: post.id,
+          post_id: id,
           category_id: catId
         }));
         await supabase.from('post_categories').insert(categoryLinks);
       }
-      alert("Post published successfully!");
-      router.push("/admin/posts");
+      alert("Post updated successfully!");
     }
     
     setIsSaving(false);
+  };
+
+  const handleDelete = async () => {
+    if (!confirm("Are you sure you want to delete this post permanently?")) return;
+    const { error } = await supabase.from('posts').delete().eq('id', id);
+    if (error) {
+      alert("Error deleting: " + error.message);
+    } else {
+      router.push("/admin/posts");
+    }
   };
 
   const toggleCategory = (catId: string) => {
@@ -96,6 +125,8 @@ export default function NewPostPage() {
       prev.includes(catId) ? prev.filter(c => c !== catId) : [...prev, catId]
     );
   };
+
+  if (isLoading) return <div className="min-h-screen bg-brand-cream flex items-center justify-center italic text-brand-midnight/40">Loading post data...</div>;
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-midnight font-sans">
@@ -105,10 +136,17 @@ export default function NewPostPage() {
           <Link href="/admin/posts" className="p-2 hover:bg-brand-cream rounded-full transition-all">
             <ChevronLeft size={20} />
           </Link>
-          <span className="font-bold text-sm uppercase tracking-widest text-brand-midnight/40">New Post</span>
+          <span className="font-bold text-sm uppercase tracking-widest text-brand-midnight/40">Edit Post</span>
         </div>
         
         <div className="flex items-center gap-3">
+          <button 
+            onClick={handleDelete}
+            className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-all mr-4"
+            title="Delete Post"
+          >
+            <Trash2 size={20} />
+          </button>
           <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-brand-midnight/60 hover:text-brand-midnight transition-all">
             <Eye size={18} />
             Preview
@@ -118,8 +156,7 @@ export default function NewPostPage() {
             disabled={isSaving}
             className="flex items-center gap-2 px-6 py-2 bg-brand-green text-brand-midnight text-sm font-bold rounded-xl shadow-sm hover:bg-brand-green/90 transition-all disabled:opacity-50"
           >
-            {status === 'published' ? <Globe size={18} /> : <Save size={18} />}
-            {isSaving ? "Publishing..." : status === 'published' ? "Publish" : "Save Draft"}
+            {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </header>
@@ -256,6 +293,3 @@ export default function NewPostPage() {
     </div>
   );
 }
-
-
-
