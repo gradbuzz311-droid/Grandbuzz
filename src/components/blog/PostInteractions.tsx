@@ -61,6 +61,20 @@ export default function PostInteractions({
     if (count !== null) setComments(Array(count).fill({}));
   };
 
+  const fetchLikeCount = async () => {
+    const { count } = await supabase
+      .from('post_interactions')
+      .select('id', { count: 'exact', head: true })
+      .eq('post_id', postId)
+      .eq('type', 'like');
+    if (count !== null) setLikes(count);
+  };
+
+  useEffect(() => {
+    fetchCommentCount();
+    fetchLikeCount();
+  }, [postId]);
+
   const checkUserInteractions = async () => {
     const { data: authData } = await supabase.auth.getUser();
     const user = authData?.user;
@@ -143,15 +157,9 @@ export default function PostInteractions({
       if (isCurrentlyLiked) {
         // Unlike
         await supabase.from('post_interactions').delete().eq('post_id', postId).eq('user_id', user?.id).eq('type', 'like');
-        const { data: post } = await supabase.from('posts').select('likes').eq('id', postId).single();
-        const currentLikes = post?.likes || 0;
-        await supabase.from('posts').update({ likes: Math.max(0, currentLikes - 1) }).eq('id', postId);
       } else {
         // Like
         await supabase.from('post_interactions').insert({ post_id: postId, user_id: user?.id, type: 'like' });
-        const { data: post } = await supabase.from('posts').select('likes').eq('id', postId).single();
-        const currentLikes = post?.likes || 0;
-        await supabase.from('posts').update({ likes: currentLikes + 1 }).eq('id', postId);
       }
       setIsInteracting(false);
     }, 500); // 500ms debounce
