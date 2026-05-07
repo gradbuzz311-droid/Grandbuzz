@@ -41,14 +41,10 @@ export default function LoginPage() {
   };
 
   const handleOAuth = async (provider: 'google' | 'linkedin_oidc') => {
-    const redirectTo = provider === 'linkedin_oidc' 
-      ? 'https://grandbuzz.sikshanext.in/login' 
-      : 'https://grandbuzz.sikshanext.in';
-
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: redirectTo
+        redirectTo: `${window.location.origin}/auth/callback`
       }
     });
   };
