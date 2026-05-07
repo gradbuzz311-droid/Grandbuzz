@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Briefcase, TrendingUp, Building2, Layers, LayoutGrid, CheckSquare } from "lucide-react";
+import { ArrowRight, Briefcase, TrendingUp, Building2, Layers, LayoutGrid, CheckSquare, Search, FileText, Coffee, Terminal, GraduationCap, Code2, BookOpen, Trophy, UserCheck, Clock } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { getThumbnailUrl } from "@/utils/helpers";
 
