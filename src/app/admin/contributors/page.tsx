@@ -132,13 +132,14 @@ export default function ContributorsPage() {
         // UPDATE Existing
         const { error } = await supabase
           .from('profiles')
-          .update({
+          .upsert({
+            id: editingContributor.id,
             full_name: formData.full_name,
             role_description: formData.role_description,
             bio: formData.bio,
-            avatar_url: publicUrl
-          })
-          .eq('id', editingContributor.id);
+            avatar_url: publicUrl,
+            updated_at: new Date().toISOString()
+          });
 
         if (error) throw error;
         alert("Contributor updated successfully!");
@@ -162,14 +163,15 @@ export default function ContributorsPage() {
         if (data.user) {
           const { error: profileError } = await supabase
             .from('profiles')
-            .update({ 
+            .upsert({ 
+              id: data.user.id,
               role: 'contributor',
               role_description: formData.role_description,
               bio: formData.bio,
               full_name: formData.full_name,
-              avatar_url: publicUrl
-            })
-            .eq('id', data.user.id);
+              avatar_url: publicUrl,
+              updated_at: new Date().toISOString()
+            });
 
           if (profileError) throw profileError;
           alert("Contributor added successfully!");
