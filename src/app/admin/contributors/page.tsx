@@ -9,14 +9,14 @@ import {
   Mail, 
   Search,
   Plus,
-  ArrowRight,
   X,
   Upload,
   Briefcase,
   Lock,
   Loader2,
   Camera,
-  AlignLeft
+  AlignLeft,
+  Edit2
 } from "lucide-react";
 
 interface Contributor {
@@ -37,6 +37,7 @@ export default function ContributorsPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [editingContributor, setEditingContributor] = useState<Contributor | null>(null);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -55,14 +56,22 @@ export default function ContributorsPage() {
 
   async function fetchContributors() {
     const supabase = createClient();
+    setLoading(true);
+    
+    // Explicitly listing columns to debug if one is missing
     const { data, error } = await supabase
       .from('profiles')
-      .select('*')
+      .select('id, full_name, avatar_url, role, role_description, bio, updated_at')
       .neq('role', 'admin')
       .neq('role', 'reader')
       .order('full_name');
 
-    if (data) setContributors(data);
+    if (error) {
+      console.error("Fetch error:", error);
+      // If columns are missing, this will help identify which one
+    }
+
+    if (data) setContributors(data as any);
     setLoading(false);
   }
 
@@ -81,25 +90,36 @@ export default function ContributorsPage() {
     if (!error) await fetchContributors();
   }
 
-  const handleInviteClick = () => {
-    setNotification("Building Notify... Coming Soon!");
-    setTimeout(() => setNotification(null), 3000);
+  const openEditModal = (contributor: Contributor) => {
+    setEditingContributor(contributor);
+    setFormData({
+      email: contributor.email || "", // Email might not be in profiles table normally, we might need a join or just leave it
+      password: "", // Don't edit password here
+      full_name: contributor.full_name || "",
+      role_description: contributor.role_description || "",
+      bio: contributor.bio || ""
+    });
+    setAvatarPreview(contributor.avatar_url || null);
+    setIsModalOpen(true);
   };
 
-  const handleAddNew = async (e: React.FormEvent) => {
+  const closeForm = () => {
+    setIsModalOpen(false);
+    setEditingContributor(null);
+    setFormData({ email: "", password: "", full_name: "", role_description: "", bio: "" });
+    setAvatarFile(null);
+    setAvatarPreview(null);
+  };
+
+  const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     const supabase = createClient();
 
-    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    const signupClient = createSupabaseClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
-    );
-
     try {
-      let publicUrl = "";
+      let publicUrl = avatarPreview || "";
+      
+      // 1. Handle Image Upload if new file selected
       if (avatarFile) {
         const fileName = `${Math.random()}.${avatarFile.name.split('.').pop()}`;
         const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile);
@@ -108,56 +128,69 @@ export default function ContributorsPage() {
         publicUrl = url;
       }
 
-      const { data, error: authError } = await signupClient.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: { data: { full_name: formData.full_name, avatar_url: publicUrl } }
-      });
-
-      if (authError) throw authError;
-
-      if (data.user) {
-        const { error: profileError } = await supabase
+      if (editingContributor) {
+        // UPDATE Existing
+        const { error } = await supabase
           .from('profiles')
-          .update({ 
-            role: 'contributor',
+          .update({
+            full_name: formData.full_name,
             role_description: formData.role_description,
             bio: formData.bio,
-            full_name: formData.full_name,
             avatar_url: publicUrl
           })
-          .eq('id', data.user.id);
+          .eq('id', editingContributor.id);
 
-        if (profileError) throw profileError;
+        if (error) throw error;
+        alert("Contributor updated successfully!");
+      } else {
+        // CREATE New
+        const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+        const signupClient = createSupabaseClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL!,
+          process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+        );
 
-        alert("Contributor added successfully!");
-        setIsModalOpen(false);
-        setFormData({ email: "", password: "", full_name: "", role_description: "", bio: "" });
-        setAvatarFile(null);
-        setAvatarPreview(null);
-        await fetchContributors();
+        const { data, error: authError } = await signupClient.auth.signUp({
+          email: formData.email,
+          password: formData.password,
+          options: { data: { full_name: formData.full_name, avatar_url: publicUrl } }
+        });
+
+        if (authError) throw authError;
+
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .update({ 
+              role: 'contributor',
+              role_description: formData.role_description,
+              bio: formData.bio,
+              full_name: formData.full_name,
+              avatar_url: publicUrl
+            })
+            .eq('id', data.user.id);
+
+          if (profileError) throw profileError;
+          alert("Contributor added successfully!");
+        }
       }
+
+      closeForm();
+      await fetchContributors();
     } catch (err: any) {
-      alert(err.message || "Error adding contributor.");
+      alert(err.message || "Operation failed.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const filteredContributors = contributors.filter(c => 
-    c.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    c.email?.toLowerCase().includes(searchQuery.toLowerCase())
+    c.full_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500 relative">
-      {notification && (
-        <div className="fixed top-8 left-1/2 -translate-x-1/2 z-[100] bg-brand-midnight text-brand-green px-6 py-3 rounded-2xl shadow-2xl border border-brand-green/20 flex items-center gap-3">
-          <Loader2 size={18} className="animate-spin" />
-          <span className="font-bold text-sm tracking-wide">{notification}</span>
-        </div>
-      )}
-
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>
           <h1 className="font-display text-4xl text-brand-midnight font-bold">Contributors</h1>
@@ -166,9 +199,6 @@ export default function ContributorsPage() {
         <div className="flex gap-3">
            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-4 bg-brand-green text-brand-midnight font-bold rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-brand-green/10">
             <Plus size={20} /> Add Contributor
-          </button>
-          <button onClick={handleInviteClick} className="flex items-center gap-2 px-6 py-4 bg-brand-midnight text-white font-bold rounded-2xl hover:scale-[1.02] transition-all">
-            <Mail size={20} /> Invite Link
           </button>
         </div>
       </div>
@@ -185,18 +215,27 @@ export default function ContributorsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? Array(6).fill(0).map((_, i) => <div key={i} className="bg-white border border-brand-border rounded-[2.5rem] p-8 h-64 animate-pulse" />) : filteredContributors.length === 0 ? (
+        {loading ? Array(3).fill(0).map((_, i) => <div key={i} className="bg-white border border-brand-border rounded-[2.5rem] p-8 h-64 animate-pulse" />) : filteredContributors.length === 0 ? (
           <div className="col-span-full py-20 text-center flex flex-col items-center">
             <Users size={48} className="text-brand-border mb-4" />
             <h3 className="text-xl font-display font-bold text-brand-midnight mb-2">No contributors found</h3>
+            <p className="text-brand-midnight/40">Ensure you have run the SQL to add 'bio' and 'role_description' columns.</p>
           </div>
         ) : filteredContributors.map((user) => (
-          <div key={user.id} className="group bg-white border border-brand-border rounded-[2.5rem] p-8 transition-all hover:shadow-xl flex flex-col h-full">
+          <div key={user.id} className="group bg-white border border-brand-border rounded-[2.5rem] p-8 transition-all hover:shadow-xl flex flex-col h-full border-b-4 border-b-transparent hover:border-b-brand-green">
             <div className="flex justify-between items-start mb-6">
               <div className="w-16 h-16 rounded-[1.5rem] bg-brand-cream border border-brand-border flex items-center justify-center text-brand-midnight text-2xl font-display font-bold overflow-hidden shadow-inner">
                 {user.avatar_url ? <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" /> : user.full_name?.charAt(0)}
               </div>
-              <div className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-[10px] font-bold uppercase tracking-widest">{user.role}</div>
+              <div className="flex flex-col items-end gap-2">
+                <div className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-[10px] font-bold uppercase tracking-widest">{user.role}</div>
+                <button 
+                  onClick={() => openEditModal(user)}
+                  className="p-2 bg-brand-cream hover:bg-brand-midnight hover:text-white rounded-xl transition-all"
+                >
+                  <Edit2 size={14} />
+                </button>
+              </div>
             </div>
             
             <div className="flex-grow">
@@ -214,7 +253,6 @@ export default function ContributorsPage() {
             </div>
 
             <div className="space-y-4 pt-6 border-t border-brand-border/50 mt-auto">
-              <div className="flex items-center gap-2 text-brand-midnight/40 text-xs font-medium"><Mail size={14} />{user.email || "No email"}</div>
               <div className="flex items-center gap-2">
                 <button onClick={() => handleRemove(user.id)} className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand-cream/50 text-brand-midnight/60 font-bold rounded-xl hover:bg-red-50 hover:text-red-600 text-sm transition-all"><UserMinus size={16} />Remove</button>
                 <button className="p-3 bg-brand-cream/50 text-brand-midnight/60 rounded-xl hover:bg-brand-midnight hover:text-white transition-all"><Shield size={16} /></button>
@@ -226,17 +264,17 @@ export default function ContributorsPage() {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[110] flex items-center justify-center p-6">
-          <div className="absolute inset-0 bg-brand-midnight/60 backdrop-blur-sm" onClick={() => setIsModalOpen(false)} />
+          <div className="absolute inset-0 bg-brand-midnight/60 backdrop-blur-sm" onClick={closeForm} />
           <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="p-8 border-b border-brand-border bg-brand-cream/30 flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-display font-bold text-brand-midnight">Add Contributor</h2>
-                <p className="text-sm text-brand-midnight/40 font-medium">Create a verified account for your team.</p>
+                <h2 className="text-2xl font-display font-bold text-brand-midnight">{editingContributor ? "Edit Contributor" : "Add Contributor"}</h2>
+                <p className="text-sm text-brand-midnight/40 font-medium">Update account details and permissions.</p>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-brand-midnight/5 rounded-xl"><X size={24} className="text-brand-midnight/40" /></button>
+              <button onClick={closeForm} className="p-2 hover:bg-brand-midnight/5 rounded-xl"><X size={24} className="text-brand-midnight/40" /></button>
             </div>
 
-            <form onSubmit={handleAddNew} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleAction} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
               <div className="flex flex-col items-center gap-4 mb-6">
                 <div className="relative w-24 h-24 rounded-3xl bg-brand-cream border-2 border-dashed border-brand-border flex items-center justify-center overflow-hidden group">
                   {avatarPreview ? <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" /> : <Camera size={32} className="text-brand-midnight/20" />}
@@ -250,16 +288,16 @@ export default function ContributorsPage() {
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Full Name</label>
-                  <input required type="text" placeholder="John Doe" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
+                  <input required type="text" placeholder="John Doe" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Working Company</label>
-                  <input required type="text" placeholder="e.g. Developer at Google" value={formData.role_description} onChange={(e) => setFormData({...formData, role_description: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
+                  <input required type="text" placeholder="e.g. Developer at Google" value={formData.role_description} onChange={(e) => setFormData({...formData, role_description: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Short Bio / Description</label>
+                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Bio / Description</label>
                 <div className="relative">
                   <AlignLeft className="absolute left-4 top-4 text-brand-midnight/20" size={18} />
                   <textarea 
@@ -268,31 +306,36 @@ export default function ContributorsPage() {
                     value={formData.bio} 
                     onChange={(e) => setFormData({...formData, bio: e.target.value})} 
                     rows={3}
-                    className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors resize-none"
+                    className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium resize-none"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Email Address</label>
-                <div className="relative">
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
-                  <input required type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
-                </div>
-              </div>
+              {!editingContributor && (
+                <>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Email Address</label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
+                      <input required type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                    </div>
+                  </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Password</label>
-                <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
-                  <input required type="password" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
-                </div>
-              </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Password</label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
+                      <input required type="password" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                    </div>
+                  </div>
+                </>
+              )}
 
               <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 px-6 border border-brand-border text-brand-midnight/60 font-bold rounded-2xl hover:bg-brand-cream/50">Cancel</button>
+                <button type="button" onClick={closeForm} className="flex-1 py-4 px-6 border border-brand-border text-brand-midnight/60 font-bold rounded-2xl hover:bg-brand-cream/50">Cancel</button>
                 <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 px-6 bg-brand-green text-brand-midnight font-bold rounded-2xl shadow-xl flex items-center justify-center gap-2">
-                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />} Create Account
+                  {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : (editingContributor ? <Shield size={20} /> : <Plus size={20} />)}
+                  {editingContributor ? "Update Profile" : "Create Account"}
                 </button>
               </div>
             </form>
