@@ -5,7 +5,7 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Menu, X, Briefcase, Search, FileText, Coffee, Terminal, GraduationCap, Code2, BookOpen, Trophy, UserCheck, Clock, Bookmark, Target, Code, AlertCircle } from "lucide-react";
+import { ArrowRight, Menu, X, Briefcase, Search, FileText, Coffee, Terminal, GraduationCap, Code2, BookOpen, Trophy, UserCheck, Clock, Bookmark, Target, Code, AlertCircle, Building2, Layers, LayoutGrid, CheckSquare, TrendingUp } from "lucide-react";
 import { getThumbnailUrl } from "@/utils/helpers";
 
 export default function Home() {
@@ -76,7 +76,6 @@ export default function Home() {
       <section className="pt-32 pb-20 px-6">
         <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
           <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
-            <p className="text-[13px] font-semibold text-brand-green tracking-wide uppercase">Curated student insights</p>
             <h1 className="font-display text-[44px] md:text-[64px] font-bold text-brand-midnight leading-[1.05] tracking-tight">
               Real insights for<br />students building<br />their future.
             </h1>
@@ -205,34 +204,56 @@ export default function Home() {
 
       {/* ── JOURNEY ── */}
       <section className="py-24 px-6">
-        <div className="max-w-6xl mx-auto space-y-16">
-          <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-center">
-            Every journey looks different.
-          </motion.h2>
-          {/* Desktop */}
-          <div className="hidden md:block relative">
-            <div className="absolute top-6 left-0 right-0 h-px bg-brand-border" />
-            <div className="flex justify-between relative">
-              {["College", "Skills", "Projects", "Internships", "Placements", "Career"].map((s, i) => (
-                <motion.div key={s} {...fade} transition={{ delay: i * 0.08 }} className="flex flex-col items-center group cursor-default">
-                  <div className="w-12 h-12 rounded-full bg-brand-cream border-2 border-brand-border flex items-center justify-center mb-4 group-hover:border-brand-green transition-colors">
-                    <div className="w-3 h-3 rounded-full bg-brand-border group-hover:bg-brand-green transition-colors" />
-                  </div>
-                  <p className="text-[13px] font-semibold text-brand-midnight">{s}</p>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-          {/* Mobile */}
-          <div className="md:hidden space-y-8 relative pl-8">
-            <div className="absolute top-0 bottom-0 left-[14px] w-px bg-brand-border" />
-            {["College", "Skills", "Projects", "Internships", "Placements", "Career"].map((s) => (
-              <div key={s} className="flex items-center gap-4 relative">
-                <div className="w-7 h-7 rounded-full bg-brand-cream border-2 border-brand-border flex items-center justify-center shrink-0 -ml-8">
-                  <div className="w-2 h-2 rounded-full bg-brand-green" />
+        <div className="max-w-6xl mx-auto space-y-6">
+          <motion.div {...fade} className="text-center space-y-3 mb-12">
+            <h2 className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight">
+              Every student journey looks different.
+            </h2>
+            <p className="text-brand-midnight/40 text-[16px] max-w-lg mx-auto">
+              There&apos;s no single path to growth — only continuous learning, experimentation, and progress.
+            </p>
+          </motion.div>
+
+          {/* Desktop milestone cards */}
+          <div className="hidden md:grid grid-cols-3 lg:grid-cols-6 gap-4">
+            {[
+              { t: "College", d: "The beginning of curiosity, exploration, and new opportunities.", i: Building2 },
+              { t: "Skills", d: "Learning technologies, communication, and problem-solving step by step.", i: Layers },
+              { t: "Projects", d: "Turning ideas into real work that demonstrates capability.", i: LayoutGrid },
+              { t: "Internships", d: "Getting practical exposure, teamwork, and industry understanding.", i: Briefcase },
+              { t: "Placements", d: "Preparing for interviews, building confidence, and facing opportunities.", i: CheckSquare },
+              { t: "Career", d: "Continuing growth beyond college through real-world experience.", i: TrendingUp },
+            ].map(({ t, d, i: Icon }, idx) => (
+              <motion.div key={t} {...fade} transition={{ delay: idx * 0.08 }} className="bg-white rounded-2xl p-5 border border-brand-border hover:border-brand-green/40 transition-all group text-center">
+                <div className="w-10 h-10 rounded-xl bg-brand-cream flex items-center justify-center mx-auto mb-4 group-hover:bg-brand-green/10 transition-colors">
+                  <Icon size={18} className="text-brand-midnight/30 group-hover:text-brand-green transition-colors" />
                 </div>
-                <p className="text-[15px] font-semibold text-brand-midnight">{s}</p>
-              </div>
+                <p className="text-[13px] font-bold text-brand-midnight mb-1">{t}</p>
+                <p className="text-[12px] text-brand-midnight/35 leading-relaxed">{d}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Mobile vertical timeline */}
+          <div className="md:hidden space-y-6 relative pl-10">
+            <div className="absolute top-2 bottom-2 left-[18px] w-px bg-brand-border" />
+            {[
+              { t: "College", d: "The beginning of curiosity, exploration, and new opportunities.", i: Building2 },
+              { t: "Skills", d: "Learning technologies, communication, and problem-solving step by step.", i: Layers },
+              { t: "Projects", d: "Turning ideas into real work that demonstrates capability.", i: LayoutGrid },
+              { t: "Internships", d: "Getting practical exposure, teamwork, and industry understanding.", i: Briefcase },
+              { t: "Placements", d: "Preparing for interviews, building confidence, and facing opportunities.", i: CheckSquare },
+              { t: "Career", d: "Continuing growth beyond college through real-world experience.", i: TrendingUp },
+            ].map(({ t, d, i: Icon }) => (
+              <motion.div key={t} {...fade} className="flex items-start gap-4 relative">
+                <div className="w-9 h-9 rounded-full bg-white border-2 border-brand-border flex items-center justify-center shrink-0 -ml-10">
+                  <Icon size={14} className="text-brand-green" />
+                </div>
+                <div>
+                  <p className="text-[15px] font-bold text-brand-midnight">{t}</p>
+                  <p className="text-[13px] text-brand-midnight/35 leading-relaxed">{d}</p>
+                </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -263,13 +284,16 @@ export default function Home() {
           <div className="space-y-4">
             <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Platform</p>
             <div className="flex flex-col gap-2.5">
-              {["Insights", "Contributors", "Mission"].map(l => <Link key={l} href={l === "Insights" ? "/posts" : "#"} className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">{l}</Link>)}
+              <Link href="/posts" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Insights</Link>
+              <Link href="/mission" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Our Mission</Link>
             </div>
           </div>
           <div className="space-y-4">
             <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Legal</p>
             <div className="flex flex-col gap-2.5">
-              {["Terms", "Privacy", "Cookies"].map(l => <Link key={l} href="#" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">{l}</Link>)}
+              <Link href="/terms" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Terms</Link>
+              <Link href="/privacy" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Privacy</Link>
+              <Link href="/cookies" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Cookies</Link>
             </div>
           </div>
         </div>
