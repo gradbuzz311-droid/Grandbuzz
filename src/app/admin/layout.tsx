@@ -34,15 +34,18 @@ export default function AdminLayout({
         return;
       }
 
-      const { data: profile } = await supabase
+      const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
 
-      if (profile) {
+      if (error) {
+        console.error("Layout role fetch error:", error);
+        // Fallback: If we can't find a profile, assume reader for safety
+        setRole('reader');
+      } else if (profile) {
         setRole(profile.role);
-        // If it's a reader, they shouldn't be here
         if (profile.role === 'reader') {
           router.push("/");
         }
