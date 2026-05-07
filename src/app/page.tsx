@@ -5,7 +5,8 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Menu, X, Briefcase, Search, FileText, Coffee, Terminal, GraduationCap, Code2, BookOpen, Trophy, UserCheck, Clock, Bookmark, Target, Code, AlertCircle, Building2, Layers, LayoutGrid, CheckSquare, TrendingUp } from "lucide-react";
+import { ArrowRight, Briefcase, TrendingUp, Building2, Layers, LayoutGrid, CheckSquare } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import { getThumbnailUrl } from "@/utils/helpers";
 
 export default function Home() {
@@ -39,38 +40,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-brand-cream text-brand-midnight font-sans overflow-x-hidden">
-
-      {/* ── NAVBAR ── */}
-      <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "bg-brand-cream/90 backdrop-blur-lg border-b border-brand-border" : "bg-transparent"}`}>
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="relative h-8 w-32"><Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" priority /></Link>
-          <div className="hidden md:flex items-center gap-8">
-            {["Insights", "Contributors", "About"].map(l => (
-              <Link key={l} href={l === "Insights" ? "/posts" : "#"} className="text-[13px] font-medium text-brand-midnight/50 hover:text-brand-midnight transition-colors">{l}</Link>
-            ))}
-            <Link href="/posts" className="text-[13px] font-semibold text-white bg-brand-midnight px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity">Explore Insights</Link>
-          </div>
-          <button className="md:hidden" onClick={() => setMenuOpen(true)}><Menu size={22} /></button>
-        </div>
-      </nav>
-
-      {/* Mobile drawer */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed inset-0 z-[60] bg-brand-cream p-8 flex flex-col">
-            <div className="flex justify-between items-center mb-16">
-              <Link href="/" onClick={() => setMenuOpen(false)} className="relative h-8 w-32"><Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" /></Link>
-              <button onClick={() => setMenuOpen(false)}><X size={24} /></button>
-            </div>
-            <div className="flex flex-col gap-6">
-              {["Insights", "Contributors", "About"].map(l => (
-                <Link key={l} href={l === "Insights" ? "/posts" : "#"} onClick={() => setMenuOpen(false)} className="text-3xl font-display font-bold text-brand-midnight">{l}</Link>
-              ))}
-              <Link href="/posts" onClick={() => setMenuOpen(false)} className="mt-6 text-center text-sm font-semibold text-white bg-brand-midnight py-4 rounded-xl">Explore Insights</Link>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <Navbar />
 
       {/* ── HERO ── */}
       <section className="pt-32 pb-20 px-6">
@@ -91,35 +61,6 @@ export default function Home() {
               </Link>
             </div>
           </motion.div>
-
-          {/* Floating cards */}
-          <div className="relative h-[420px] hidden lg:block">
-            {[
-              { t: "How I cracked my first internship", c: "Internships", icon: Target, x: "left-0 top-0", d: 0, r: -2 },
-              { t: "What recruiters actually look for", c: "Placements", icon: Search, x: "right-0 top-8", d: 0.8, r: 2 },
-              { t: "Building projects that stand out", c: "Projects", icon: Code, x: "left-12 bottom-0", d: 1.2, r: 1 },
-              { t: "Things students should learn earlier", c: "Career", icon: AlertCircle, x: "right-4 bottom-8", d: 1.6, r: -1 },
-            ].map((card, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: [0, -10, 0] }}
-                transition={{ opacity: { duration: 0.6, delay: card.d }, y: { duration: 5 + i, repeat: Infinity, ease: "easeInOut", delay: card.d } }}
-                className={`absolute ${card.x} bg-white rounded-2xl p-5 border border-brand-border w-56 shadow-sm`}
-                style={{ transform: `rotate(${card.r}deg)` }}>
-                <p className="text-[10px] font-semibold text-brand-green uppercase tracking-wider mb-1">{card.c}</p>
-                <p className="text-[14px] font-semibold text-brand-midnight leading-snug">{card.t}</p>
-                <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-brand-border/50">
-                  <div className="w-4 h-4 rounded-full bg-brand-cream border border-brand-border" />
-                  <div className="w-12 h-1.5 bg-brand-cream rounded-full" />
-                  <Bookmark size={10} className="ml-auto text-brand-midnight/15" />
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Mobile single card */}
-          <div className="lg:hidden bg-white rounded-2xl p-5 border border-brand-border">
-            <p className="text-[10px] font-semibold text-brand-green uppercase tracking-wider mb-1">Internships</p>
-            <p className="text-[14px] font-semibold text-brand-midnight leading-snug">How I cracked my first internship</p>
-          </div>
         </div>
       </section>
 
@@ -176,7 +117,7 @@ export default function Home() {
         <section className="py-24 px-6 bg-white border-y border-brand-border">
           <div className="max-w-6xl mx-auto space-y-12">
             <div className="flex items-end justify-between">
-              <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight">Featured Insights</motion.h2>
+              <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight">Latest Intelligence</motion.h2>
               <Link href="/posts" className="text-[13px] font-medium text-brand-midnight/40 hover:text-brand-midnight transition-colors hidden sm:block">View all →</Link>
             </div>
             <div className="grid md:grid-cols-2 gap-6">
@@ -268,7 +209,7 @@ export default function Home() {
           <p className="text-white/40 text-[17px] leading-relaxed">
             We&apos;re inviting professionals, professors, and experienced students to contribute insights that genuinely help others grow.
           </p>
-          <Link href="#" className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-brand-midnight rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
+          <Link href="/contributor/apply" className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-brand-midnight rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
             Apply as Contributor <ArrowRight size={16} />
           </Link>
         </motion.div>
@@ -282,14 +223,15 @@ export default function Home() {
             <p className="text-brand-midnight/40 text-[14px] leading-relaxed max-w-sm">Where student ambition meets real advice. An initiative by Sikshanext Private Limited.</p>
           </div>
           <div className="space-y-4">
-            <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Platform</p>
+            <p className="text-[12px] font-bold text-brand-midnight/30">Platform</p>
             <div className="flex flex-col gap-2.5">
               <Link href="/posts" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Insights</Link>
+              <Link href="/about" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">About</Link>
               <Link href="/mission" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Our Mission</Link>
             </div>
           </div>
           <div className="space-y-4">
-            <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Legal</p>
+            <p className="text-[12px] font-bold text-brand-midnight/30">Legal</p>
             <div className="flex flex-col gap-2.5">
               <Link href="/terms" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Terms</Link>
               <Link href="/privacy" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">Privacy</Link>

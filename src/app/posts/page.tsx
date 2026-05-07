@@ -5,11 +5,11 @@ import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
 import { 
-  ArrowLeft,
   Heart,
   Clock,
   Filter
 } from "lucide-react";
+import Navbar from "@/components/Navbar";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default function PostsFeedPage() {
@@ -37,16 +37,7 @@ export default function PostsFeedPage() {
 
   return (
     <div className="min-h-screen bg-[#FDFCF8]">
-      {/* Navigation */}
-      <nav className="h-20 bg-white border-b border-brand-border sticky top-0 z-50 px-6 flex items-center justify-between">
-        <Link href="/" className="relative h-8 w-32 shrink-0">
-          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" />
-        </Link>
-        <Link href="/" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">
-          Back Home
-          <ArrowLeft size={16} className="rotate-180" />
-        </Link>
-      </nav>
+      <Navbar />
 
       <main className="max-w-7xl mx-auto px-6 py-16">
         <header className="mb-16">
@@ -138,10 +129,10 @@ export default function PostsFeedPage() {
          <Link href="/" className="relative h-10 w-32 block mx-auto mb-8">
            <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain" />
          </Link>
-         <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em] mb-1">
-            © 2026 GradBuzz. All Rights Reserved.
+         <p className="text-[12px] text-brand-midnight/30 mb-1">
+            © 2026 GradBuzz. All rights reserved.
          </p>
-         <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
+         <p className="text-[12px] text-brand-midnight/20">
             Initiative by Sikshanext Private Limited.
          </p>
       </footer>

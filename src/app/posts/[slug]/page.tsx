@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import PostInteractions from "@/components/blog/PostInteractions";
 import ShareButton from "@/components/blog/ShareButton";
+import Navbar from "@/components/Navbar";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -35,19 +36,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
   return (
     <article className="min-h-screen bg-brand-cream/30 selection:bg-brand-green/30">
-      {/* Top Bar for Article */}
-      <nav className="h-20 bg-white border-b border-brand-border sticky top-0 z-40 px-6 flex items-center justify-between">
-        <Link href="/" className="relative h-12 w-48">
-          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" />
-        </Link>
-        <div className="flex items-center gap-4">
-           <Link href="/posts" className="text-xs font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Back to Feed</Link>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero Image Container with Gap */}
-      <div className="px-6 pt-8 max-w-7xl mx-auto">
-        <div className="relative w-full aspect-[21/9] min-h-[300px] md:min-h-[450px] bg-brand-midnight rounded-[32px] overflow-hidden shadow-2xl">
+      <div className="px-4 md:px-12 pt-6 max-w-6xl mx-auto">
+        <div className="relative w-full aspect-[16/9] md:aspect-[21/9] bg-brand-midnight rounded-2xl md:rounded-3xl overflow-hidden">
           <Image
             src={getThumbnailUrl(post.thumbnail_url)}
             alt={post.title}
@@ -67,14 +60,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
               <Link 
                 key={c.category.slug}
                 href={`/categories/${c.category.slug}`}
-                className="bg-brand-green/10 text-brand-green px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-green hover:text-brand-midnight transition-all border border-brand-green/20"
+                className="bg-brand-green/10 text-brand-green px-4 py-1.5 rounded-lg text-[11px] font-semibold hover:bg-brand-green hover:text-brand-midnight transition-all border border-brand-green/20"
               >
                 {c.category.name}
               </Link>
             ))}
           </div>
           
-          <h1 className="font-display text-3xl md:text-5xl font-black text-brand-midnight leading-tight tracking-tight">
+          <h1 className="text-[22px] md:text-[32px] font-bold text-brand-midnight leading-tight tracking-tight">
             {post.title}
           </h1>
           
@@ -90,8 +83,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                  />
               </div>
               <div>
-                <p className="text-xs font-black text-brand-midnight uppercase tracking-widest leading-none mb-1">{authorName}</p>
-                <p className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest">
+                <p className="text-[13px] font-semibold text-brand-midnight leading-none mb-1">{authorName}</p>
+                <p className="text-[12px] text-brand-midnight/40">
                   {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
@@ -100,7 +93,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <div className="flex items-center gap-8">
               <div className="w-px h-8 bg-brand-border/50 hidden sm:block" />
               <div>
-                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-widest leading-none mb-1">Read Time</p>
+                <p className="text-[12px] text-brand-midnight/30 leading-none mb-1">Read time</p>
                 <p className="text-sm font-bold text-brand-midnight">5 Mins</p>
               </div>
             </div>
@@ -135,13 +128,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                 <Image src="/logo_nobg.png" alt="GradBuzz Logo" fill className="object-contain" />
              </div>
              <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">
-                   Initiative by Sikshanext Private Limited.
-                </p>
-                <div className="hidden md:block w-1 h-1 bg-brand-midnight/10 rounded-full" />
-                <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
-                   © 2026 All Rights Reserved.
-                </p>
+                 <p className="text-[12px] text-brand-midnight/30">
+                    Initiative by Sikshanext Private Limited.
+                 </p>
+                 <div className="hidden md:block w-1 h-1 bg-brand-midnight/10 rounded-full" />
+                 <p className="text-[12px] text-brand-midnight/20">
+                    © 2026 All rights reserved.
+                 </p>
              </div>
           </div>
         </footer>
