@@ -1,18 +1,17 @@
 "use client";
 
-import Image from "next/image";
+import { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { 
   LayoutDashboard, 
   FileText, 
   Users, 
-  UserPlus, 
+  ClipboardList, 
   LogOut,
-  Menu,
-  X as CloseIcon,
-  User
+  ChevronRight,
+  Loader2
 } from "lucide-react";
 
 export default function AdminLayout({
@@ -21,128 +20,110 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
 
-  const navItems = [
-    { name: "Dashboard", href: "/admin", icon: <LayoutDashboard size={20} /> },
-    { name: "Posts", href: "/admin/posts", icon: <FileText size={20} /> },
-    { name: "Contributors", href: "/admin/contributors", icon: <Users size={20} /> },
-    { name: "Applications", href: "/admin/applications", icon: <UserPlus size={20} /> },
+  useEffect(() => {
+    async function checkUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!user) {
+        router.push("/login");
+        return;
+      }
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (profile) {
+        setRole(profile.role);
+        // If it's a reader, they shouldn't be here
+        if (profile.role === 'reader') {
+          router.push("/");
+        }
+      }
+      setLoading(false);
+    }
+    checkUser();
+  }, [router]);
+
+  const handleLogout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
+        <Loader2 className="animate-spin text-brand-green" size={40} />
+      </div>
+    );
+  }
+
+  const menuItems = [
+    { name: "Dashboard", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
+    { name: "Posts", icon: FileText, path: "/admin/posts", roles: ["admin", "contributor"] },
+    { name: "Users", icon: Users, path: "/admin/contributors", roles: ["admin"] },
+    { name: "Applications", icon: ClipboardList, path: "/admin/applications", roles: ["admin"] },
   ];
 
+  const filteredMenu = menuItems.filter(item => item.roles.includes(role || ''));
+
   return (
-    <div className="min-h-screen bg-brand-cream text-brand-midnight font-sans flex">
-      {/* Sidebar - Desktop */}
-      <aside className="hidden md:flex flex-col w-64 fixed h-full bg-white border-r border-brand-border z-30">
+    <div className="min-h-screen bg-brand-cream flex">
+      {/* Sidebar */}
+      <aside className="w-80 bg-white border-r border-brand-border flex flex-col sticky top-0 h-screen shadow-sm">
         <div className="p-8">
-          <Link href="/admin">
-            <Image
-              src="/gradbuzz.png"
-              alt="GradBuzz"
-              width={140}
-              height={40}
-              className="object-contain"
-              priority
-            />
+          <Link href="/" className="flex items-center gap-3 group">
+             <img src="/logo.png" alt="GradBuzz" className="h-10 w-auto" />
           </Link>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
+          {filteredMenu.map((item) => {
+            const isActive = pathname === item.path;
+            const Icon = item.icon;
             return (
               <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 font-medium text-sm ${
-                  isActive
-                    ? "bg-brand-green text-brand-midnight shadow-sm"
-                    : "text-brand-midnight/60 hover:bg-brand-cream hover:text-brand-midnight"
+                key={item.path}
+                href={item.path}
+                className={`flex items-center justify-between px-6 py-4 rounded-[1.5rem] font-bold transition-all group ${
+                  isActive 
+                    ? "bg-brand-midnight text-white shadow-lg shadow-brand-midnight/10" 
+                    : "text-brand-midnight/40 hover:bg-brand-cream hover:text-brand-midnight"
                 }`}
               >
-                {item.icon}
-                {item.name}
+                <div className="flex items-center gap-4">
+                  <Icon size={20} className={isActive ? "text-brand-green" : "group-hover:text-brand-green"} />
+                  {item.name}
+                </div>
+                {isActive && <ChevronRight size={16} className="text-brand-green" />}
               </Link>
             );
           })}
         </nav>
 
         <div className="p-6 border-t border-brand-border">
-          <button className="flex items-center gap-3 px-4 py-3 w-full text-left text-brand-midnight/60 hover:text-brand-midnight hover:bg-brand-cream rounded-xl transition-all text-sm font-medium">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-4 px-6 py-4 rounded-[1.5rem] font-bold text-red-500 hover:bg-red-50 transition-all"
+          >
             <LogOut size={20} />
             Logout
           </button>
         </div>
       </aside>
 
-      {/* Mobile Sidebar / Drawer */}
-      <div
-        className={`fixed inset-0 bg-brand-midnight/20 z-40 md:hidden transition-opacity duration-300 ${
-          isMobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
-        }`}
-        onClick={() => setIsMobileMenuOpen(false)}
-      />
-      <aside
-        className={`fixed left-0 top-0 h-full w-64 bg-white z-50 transform transition-transform duration-300 md:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="p-8 flex justify-between items-center">
-          <Image
-            src="/gradbuzz.png"
-            alt="GradBuzz"
-            width={120}
-            height={36}
-            className="object-contain"
-          />
-          <button onClick={() => setIsMobileMenuOpen(false)} className="text-brand-midnight">
-            <CloseIcon size={24} />
-          </button>
-        </div>
-        <nav className="px-4 space-y-2 mt-4">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm ${
-                  isActive ? "bg-brand-green text-brand-midnight" : "text-brand-midnight/60"
-                }`}
-              >
-                {item.icon}
-                {item.name}
-              </Link>
-            );
-          })}
-        </nav>
-      </aside>
-
       {/* Main Content */}
-      <div className="flex-1 md:ml-64 flex flex-col">
-        {/* Header */}
-        <header className="h-16 flex items-center justify-between px-6 md:px-10 bg-transparent sticky top-0 z-20">
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="md:hidden p-2 -ml-2 text-brand-midnight"
-          >
-            <Menu size={24} />
-          </button>
-          <div className="flex-1" />
-          <div className="flex items-center gap-4">
-            <div className="w-9 h-9 rounded-full bg-brand-midnight/5 border border-brand-border flex items-center justify-center text-brand-midnight overflow-hidden cursor-pointer hover:border-brand-midnight/20 transition-all">
-              <User size={20} />
-            </div>
-          </div>
-        </header>
-
-        <main className="p-6 md:p-10 pt-4 max-w-6xl w-full mx-auto">
-          {children}
-        </main>
-      </div>
+      <main className="flex-1 p-12 max-h-screen overflow-y-auto custom-scrollbar">
+        {children}
+      </main>
     </div>
   );
 }
-
-

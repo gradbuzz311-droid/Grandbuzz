@@ -22,8 +22,17 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchStats() {
+    async function getStats() {
       const supabase = createClient();
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
+        if (profile?.role === 'contributor') {
+          router.push('/admin/posts');
+          return;
+        }
+      }
       
       const [
         { count: postsCount },
