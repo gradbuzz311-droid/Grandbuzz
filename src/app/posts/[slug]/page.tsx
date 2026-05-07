@@ -15,7 +15,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     .from('posts')
     .select(`
       *,
-      author:profiles(full_name, avatar_url),
+      author:profiles(full_name, avatar_url, role),
       categories:post_categories(
         category:categories(name, slug)
       )
@@ -26,6 +26,10 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   if (error || !post) {
     notFound();
   }
+
+  const isAuthorAdmin = post.author?.role === 'admin';
+  const authorName = isAuthorAdmin ? "GradBuzz" : (post.author?.full_name || 'GradBuzz Editor');
+  const authorAvatar = isAuthorAdmin ? "/logo_nobg.png" : getAvatarUrl(post.author?.avatar_url);
 
   return (
     <article className="min-h-screen bg-brand-cream/30 selection:bg-brand-green/30">
@@ -72,17 +76,17 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             
             <div className="flex items-center justify-center gap-6 text-white/80">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50">
+                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50 bg-white">
                    <Image 
-                    src={getAvatarUrl(post.author?.avatar_url)} 
-                    alt={post.author?.full_name || "Author"} 
+                    src={authorAvatar} 
+                    alt={authorName} 
                     fill 
                     className="object-cover" 
-                    unoptimized={post.author?.avatar_url?.startsWith('data:')}
+                    unoptimized={authorAvatar.startsWith('data:')}
                    />
                 </div>
                 <div className="text-left">
-                  <p className="text-sm font-black text-white leading-none mb-1">{post.author?.full_name || 'GradBuzz Editor'}</p>
+                  <p className="text-sm font-black text-white leading-none mb-1">{authorName}</p>
                   <p className="text-[10px] font-bold uppercase tracking-widest text-brand-green">
                     {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                   </p>
