@@ -151,46 +151,20 @@ export default function Home() {
           ) : null}
         </section>
 
-        {/* Stats Strip */}
-        <section className="bg-white border-y border-brand-border py-12">
-          <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
-            {[
-              { label: 'Published Insights', value: `${stats.posts}+`, icon: BookOpen },
-              { label: 'Active Contributors', value: `${stats.contributors}+`, icon: Users },
-              { label: 'Student Readers', value: `${stats.readers}+`, icon: TrendingUp },
-              { label: 'Weekly Reach', value: `${stats.reach}k+`, icon: Zap },
-            ].map((stat, i) => (
-              <div key={i} className="space-y-2 group">
-                <stat.icon className="text-brand-green group-hover:scale-110 transition-transform" size={20} />
-                <h3 className="text-3xl font-display font-black text-brand-midnight tracking-tight">{stat.value}</h3>
-                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-widest leading-none">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* Recent Feed */}
         <section className="max-w-7xl mx-auto px-6 py-24">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
-            <div className="space-y-4">
-              <h2 className="font-display text-5xl md:text-7xl font-black text-brand-midnight tracking-tight leading-[0.9] mb-4">
-                Latest <br/>Intelligence.
-              </h2>
-              <p className="text-brand-midnight/40 font-medium max-w-md text-lg">
-                Raw, unfiltered advice from the students who are currently navigating the grind.
-              </p>
-            </div>
-            <Link href="/posts" className="group flex items-center gap-3 text-xs font-black uppercase tracking-widest text-brand-midnight hover:text-brand-green transition-all">
-               View All Stories
-               <div className="w-10 h-10 rounded-full border border-brand-border flex items-center justify-center group-hover:bg-brand-green group-hover:border-brand-green transition-all">
-                  <ArrowRight size={16} />
-               </div>
-            </Link>
+          <div className="flex flex-col items-center text-center space-y-4 mb-16">
+            <h2 className="font-display text-5xl md:text-7xl font-black text-brand-midnight tracking-tight leading-[0.9] mb-4">
+              Latest <br className="md:hidden"/>Intelligence.
+            </h2>
+            <p className="text-brand-midnight/40 font-medium max-w-md text-lg">
+              Raw, unfiltered advice from the students who are currently navigating the grind.
+            </p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
             {loading ? (
-               Array(6).fill(0).map((_, i) => (
+               Array(5).fill(0).map((_, i) => (
                  <div key={i} className="h-96 rounded-[32px] bg-brand-cream animate-pulse" />
                ))
             ) : (
@@ -252,44 +226,63 @@ export default function Home() {
                 );
               })
             )}
-            
-            {!loading && recentPosts.length >= 5 && (
-              <Link href="/posts" className="group flex flex-col items-center justify-center h-full bg-brand-midnight rounded-[32px] p-12 text-center hover:scale-[1.02] transition-all cursor-pointer">
-                <div className="w-16 h-16 rounded-full bg-brand-green flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                  <ArrowRight size={24} className="text-brand-midnight" />
-                </div>
-                <h3 className="font-display text-2xl font-black text-white mb-4">Load More Stories</h3>
-                <p className="text-white/40 text-sm font-medium">Explore our full archive of student intelligence</p>
-              </Link>
-            )}
+          </div>
+          
+          <div className="mt-16 flex justify-center">
+            <Link href="/posts" className="group flex items-center gap-4 px-10 py-5 bg-brand-midnight text-white rounded-[24px] text-xs font-black uppercase tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-2xl shadow-brand-midnight/20">
+               Explore Full Archive
+               <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+            </Link>
           </div>
         </section>
       </main>
 
-      {/* Minimal Side-by-Side Footer */}
-      <footer className="py-12 px-6 border-t border-brand-border bg-white">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="flex items-center gap-6">
-            <Link href="/" className="relative h-8 w-32 shrink-0">
-              <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain" />
-            </Link>
-            <div className="hidden md:block w-px h-6 bg-brand-border" />
-            <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">
-               By Sikshanext Private Limited
+      {/* Professional Multi-Column Footer */}
+      <footer className="bg-white border-t border-brand-border pt-24 pb-12 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+            <div className="col-span-1 md:col-span-2 space-y-8">
+              <Link href="/" className="relative h-12 w-48 block">
+                <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" />
+              </Link>
+              <p className="text-brand-midnight/50 font-medium text-lg max-w-sm leading-relaxed">
+                The definitive intelligence platform for the modern student. Built by the grind, for the grind.
+              </p>
+              <div className="flex items-center gap-6 pt-4">
+                 <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">
+                    Initiative by Sikshanext Private Limited
+                 </p>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <h4 className="text-[10px] font-black text-brand-midnight uppercase tracking-widest">Navigation</h4>
+              <ul className="space-y-4">
+                <li><Link href="/" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Home</Link></li>
+                <li><Link href="/posts" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Insights</Link></li>
+                <li><Link href="#" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Contributors</Link></li>
+                <li><Link href="#" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Mission</Link></li>
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h4 className="text-[10px] font-black text-brand-midnight uppercase tracking-widest">Legal</h4>
+              <ul className="space-y-4">
+                <li><Link href="#" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Terms of Service</Link></li>
+                <li><Link href="#" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Privacy Policy</Link></li>
+                <li><Link href="#" className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors">Cookie Settings</Link></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-8">
+            <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
+               © 2026 GradBuzz Platform. All Rights Reserved.
             </p>
+            <div className="flex gap-8">
+               <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">Designed in D.C.</p>
+            </div>
           </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
-            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Mission</Link>
-            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Contributors</Link>
-            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Terms</Link>
-            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Privacy</Link>
-            <Link href="#" className="text-[10px] font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Cookies</Link>
-          </div>
-
-          <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
-             © 2026 All Rights Reserved
-          </p>
         </div>
       </footer>
     </div>

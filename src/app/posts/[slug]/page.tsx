@@ -37,24 +37,26 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <article className="min-h-screen bg-brand-cream/30 selection:bg-brand-green/30">
       {/* Top Bar for Article */}
       <nav className="h-20 bg-white border-b border-brand-border sticky top-0 z-40 px-6 flex items-center justify-between">
-        <Link href="/" className="relative h-10 w-36">
-          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain" />
+        <Link href="/" className="relative h-12 w-48">
+          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" />
         </Link>
         <div className="flex items-center gap-4">
            <Link href="/posts" className="text-xs font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Back to Feed</Link>
         </div>
       </nav>
 
-      {/* Hero Image Container */}
-      <div className="relative w-full aspect-[21/9] min-h-[300px] md:min-h-[450px] bg-brand-midnight overflow-hidden">
-        <Image
-          src={getThumbnailUrl(post.thumbnail_url)}
-          alt={post.title}
-          fill
-          className="object-cover"
-          priority
-          unoptimized={true}
-        />
+      {/* Hero Image Container with Gap */}
+      <div className="px-6 pt-8 max-w-7xl mx-auto">
+        <div className="relative w-full aspect-[21/9] min-h-[300px] md:min-h-[450px] bg-brand-midnight rounded-[32px] overflow-hidden shadow-2xl">
+          <Image
+            src={getThumbnailUrl(post.thumbnail_url)}
+            alt={post.title}
+            fill
+            className="object-cover"
+            priority
+            unoptimized={true}
+          />
+        </div>
       </div>
 
       <main className="max-w-4xl mx-auto px-6 pt-12 pb-20">
@@ -72,7 +74,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             ))}
           </div>
           
-          <h1 className="font-display text-4xl md:text-7xl font-black text-brand-midnight leading-[1.1] tracking-tight">
+          <h1 className="font-display text-3xl md:text-5xl font-black text-brand-midnight leading-tight tracking-tight">
             {post.title}
           </h1>
           
