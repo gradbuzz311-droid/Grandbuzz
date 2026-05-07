@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
@@ -51,7 +52,7 @@ export default function LoginPage() {
           <div className="flex justify-center mb-10">
             <Link href="/" className="relative h-12 w-40">
               <Image
-                src="/logo.png"
+                src="/gradbuzz.png"
                 alt="GradBuzz Logo"
                 fill
                 className="object-contain"
