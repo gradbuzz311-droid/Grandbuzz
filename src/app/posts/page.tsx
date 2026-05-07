@@ -29,8 +29,27 @@ export default function PostsFeedPage() {
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(20);
-      
-      setPosts(data || []);
+      if (data && data.length > 0) {
+        const postIds = data.map((p: any) => p.id);
+        const { data: interactions } = await supabase
+          .from('post_interactions')
+          .select('post_id')
+          .in('post_id', postIds)
+          .eq('type', 'like');
+
+        const counts = interactions?.reduce((acc: any, curr: any) => {
+          acc[curr.post_id] = (acc[curr.post_id] || 0) + 1;
+          return acc;
+        }, {}) || {};
+
+        const postsWithLikes = data.map((p: any) => ({
+          ...p,
+          actualLikes: counts[p.id] || 0
+        }));
+        setPosts(postsWithLikes);
+      } else {
+        setPosts([]);
+      }
       setLoading(false);
     }
     fetchPosts();
@@ -111,7 +130,7 @@ export default function PostsFeedPage() {
                       <div className="flex items-center gap-4 text-brand-midnight/20">
                          <div className="flex items-center gap-1.5 text-brand-midnight/40 group-hover:text-red-500 transition-colors">
                             <Heart size={16} />
-                            <span className="text-xs font-bold">{post.likes || 0}</span>
+                            <span className="text-xs font-bold">{post.actualLikes || 0}</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                             <Clock size={14} />
