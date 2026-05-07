@@ -33,6 +33,7 @@ export default function NewPostPage() {
   const [slug, setSlug] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [userRole, setUserRole] = useState<string>("reader");
 
   // Fetch user role
@@ -67,6 +68,7 @@ export default function NewPostPage() {
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setThumbnailFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setThumbnail(reader.result as string);

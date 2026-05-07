@@ -35,6 +35,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [slug, setSlug] = useState("");
   const [metaDescription, setMetaDescription] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [userRole, setUserRole] = useState<string>("reader");
 
@@ -83,6 +84,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setThumbnailFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setThumbnail(reader.result as string);
