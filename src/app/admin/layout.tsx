@@ -34,6 +34,13 @@ export default function AdminLayout({
         return;
       }
 
+      // EMERGENCY FALLBACK: If this is your specific email, always set as admin
+      if (user.email === 'asrithbehla2007@gmail.com') {
+        setRole('admin');
+        setLoading(false);
+        return;
+      }
+
       const { data: profile, error } = await supabase
         .from("profiles")
         .select("role")
@@ -42,7 +49,6 @@ export default function AdminLayout({
 
       if (error) {
         console.error("Layout role fetch error:", error);
-        // Fallback: If we can't find a profile, assume reader for safety
         setRole('reader');
       } else if (profile) {
         setRole(profile.role);
