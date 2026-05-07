@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { createClient } from "@/utils/supabase/client";
+import { getThumbnailUrl } from "@/utils/helpers";
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<any[]>([]);
@@ -110,7 +111,7 @@ export default function PostsPage() {
               {/* Thumbnail */}
               <div className="w-32 h-24 rounded-2xl overflow-hidden bg-brand-cream border border-brand-border shrink-0 relative">
                 {post.thumbnail_url ? (
-                  <Image src={post.thumbnail_url} alt="" width={128} height={96} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" />
+                  <Image src={getThumbnailUrl(post.thumbnail_url)} alt="" width={128} height={96} className="object-cover w-full h-full group-hover:scale-110 transition-transform duration-500" unoptimized={post.thumbnail_url.startsWith('data:')} />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-brand-midnight/10">
                     <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20"><path d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z"/></svg>

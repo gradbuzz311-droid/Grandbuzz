@@ -51,7 +51,7 @@ export default function PostsFeedPage() {
 
       <main className="max-w-7xl mx-auto px-6 py-16">
         <header className="mb-16">
-           <h1 className="font-display text-5xl md:text-8xl font-black text-brand-midnight tracking-tighter leading-none mb-6">
+           <h1 className="font-display text-5xl md:text-8xl font-black text-brand-midnight tracking-tight leading-none mb-6">
              The Feed.
            </h1>
            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -91,7 +91,7 @@ export default function PostsFeedPage() {
               </div>
               
               <div className="flex flex-col flex-grow">
-                <h3 className="font-display text-2xl font-black text-brand-midnight mb-6 leading-tight group-hover:text-brand-green transition-colors">
+                <h3 className="font-display text-2xl font-black text-brand-midnight mb-6 leading-tight group-hover:text-brand-green transition-colors tracking-tight">
                   {post.title}
                 </h3>
                 

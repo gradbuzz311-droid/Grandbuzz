@@ -120,12 +120,7 @@ export default function NewPostPage() {
           .upload(filePath, thumbnailFile);
 
         if (uploadError) throw uploadError;
-
-        const { data: { publicUrl } } = supabase.storage
-          .from('posts')
-          .getPublicUrl(filePath);
-        
-        finalThumbnailUrl = publicUrl;
+        finalThumbnailUrl = filePath;
       }
 
       const { data: post, error: postError } = await supabase.from('posts').insert({
