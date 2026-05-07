@@ -27,57 +27,69 @@ export default function LoginPage() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push("/admin");
+      // Fetch user role for redirection
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .single();
+
+      if (profile?.role === 'admin') {
+        router.push("/admin");
+      } else if (profile?.role === 'contributor') {
+        router.push("/contributor");
+      } else {
+        router.push("/");
+      }
       router.refresh();
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-brand-cream p-6">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden border border-brand-border">
-        <div className="p-10">
-          <div className="flex justify-center mb-8">
-            <div className="w-20 h-20 flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#FDFCF8] p-6">
+      <div className="w-full max-w-md bg-white rounded-[32px] shadow-2xl overflow-hidden border border-brand-border">
+        <div className="p-12">
+          <div className="flex justify-center mb-10">
+            <Link href="/" className="relative h-12 w-40">
               <Image
-                src="/gradbuzz.png"
+                src="/logo.png"
                 alt="GradBuzz Logo"
-                width={80}
-                height={80}
+                fill
                 className="object-contain"
+                priority
               />
-            </div>
+            </Link>
           </div>
           
-          <h1 className="font-display text-3xl font-extrabold text-brand-midnight text-center mb-2">Welcome Back</h1>
-          <p className="text-brand-midnight/50 text-center text-sm mb-8 font-medium italic">GradBuzz Editorial Platform</p>
+          <h1 className="font-display text-4xl font-black text-brand-midnight text-center mb-2 tracking-tighter">Welcome.</h1>
+          <p className="text-brand-midnight/40 text-center text-sm mb-10 font-medium">Editorial Platform Access</p>
 
           <form onSubmit={handleLogin} className="space-y-6">
-            <div>
-              <label className="text-[10px] font-bold text-brand-midnight/50 uppercase tracking-widest block mb-2 px-1">Email Address</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em] block px-1">Email Address</label>
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-brand-cream/30 border border-brand-border rounded-xl py-3 px-4 font-sans text-sm focus:border-brand-green outline-none transition-all"
+                className="w-full bg-brand-cream/20 border border-brand-border rounded-2xl py-4 px-5 font-sans text-sm focus:border-brand-green outline-none transition-all placeholder:text-brand-midnight/20"
                 placeholder="editor@gradbuzz.com"
               />
             </div>
 
-            <div>
-              <label className="text-[10px] font-bold text-brand-midnight/50 uppercase tracking-widest block mb-2 px-1">Password</label>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em] block px-1">Password</label>
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-brand-cream/30 border border-brand-border rounded-xl py-3 px-4 font-sans text-sm focus:border-brand-green outline-none transition-all"
+                className="w-full bg-brand-cream/20 border border-brand-border rounded-2xl py-4 px-5 font-sans text-sm focus:border-brand-green outline-none transition-all placeholder:text-brand-midnight/20"
                 placeholder="••••••••"
               />
             </div>
 
             {error && (
-              <div className="bg-red-50 border border-red-100 text-red-600 text-xs py-3 px-4 rounded-xl font-bold">
+              <div className="bg-red-50 border border-red-100 text-red-600 text-xs py-4 px-5 rounded-2xl font-bold animate-in fade-in slide-in-from-top-1">
                 {error}
               </div>
             )}
@@ -85,44 +97,16 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-brand-midnight text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-brand-midnight/90 transition-all shadow-md active:scale-95 disabled:opacity-50 disabled:pointer-events-none"
+              className="w-full py-5 bg-brand-midnight text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl shadow-brand-midnight/10 disabled:opacity-50 disabled:pointer-events-none"
             >
-              {loading ? "Authenticating..." : "Sign In"}
+              {loading ? "Authenticating..." : "Sign In to Platform"}
             </button>
-
-            <button
-              type="button"
-              onClick={async () => {
-                setLoading(true);
-                setError(null);
-                const { error } = await supabase.auth.signUp({
-                  email,
-                  password,
-                  options: {
-                    data: {
-                      full_name: 'Admin',
-                    }
-                  }
-                });
-                if (error) {
-                  setError(error.message);
-                } else {
-                  setError("Account created! You may need to confirm your email or try signing in now.");
-                }
-                setLoading(false);
-              }}
-              disabled={loading}
-              className="w-full py-4 bg-transparent border border-brand-midnight text-brand-midnight font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-brand-midnight/5 transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none mt-4"
-            >
-              Temporary Sign Up
-            </button>
-
           </form>
         </div>
         
-        <div className="p-6 bg-brand-cream/20 border-t border-brand-border text-center">
-          <p className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest">
-            Restricted access for authorized personnel only
+        <div className="p-8 bg-brand-cream/20 border-t border-brand-border text-center">
+          <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">
+            An initiative by Sikshanext Private Limited
           </p>
         </div>
       </div>

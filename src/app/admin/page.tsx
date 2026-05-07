@@ -31,7 +31,10 @@ export default function AdminDashboard() {
       if (user) {
         const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single();
         if (profile?.role === 'contributor') {
-          router.push('/admin/posts');
+          router.push('/contributor');
+          return;
+        } else if (profile?.role !== 'admin') {
+          router.push('/');
           return;
         }
       }

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import PostInteractions from "@/components/blog/PostInteractions";
+import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -30,8 +31,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
     <article className="min-h-screen bg-brand-cream/30 selection:bg-brand-green/30">
       {/* Top Bar for Article */}
       <nav className="h-20 bg-white border-b border-brand-border sticky top-0 z-40 px-6 flex items-center justify-between">
-        <Link href="/" className="relative h-10 w-32">
-          <Image src="/logo.png" alt="GradBuzz" fill className="object-contain" />
+        <Link href="/" className="relative h-10 w-36">
+          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain" />
         </Link>
         <div className="flex items-center gap-4">
            <Link href="/posts" className="text-xs font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">Back to Feed</Link>
@@ -40,17 +41,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
 
       {/* Article Hero */}
       <header className="relative w-full h-[70vh] min-h-[500px] bg-brand-midnight overflow-hidden">
-        {post.thumbnail_url ? (
-          <Image
-            src={post.thumbnail_url}
-            alt={post.title}
-            fill
-            className="object-cover opacity-70"
-            priority
-          />
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-midnight to-brand-midnight/80" />
-        )}
+        <Image
+          src={getThumbnailUrl(post.thumbnail_url)}
+          alt={post.title}
+          fill
+          className="object-cover opacity-70"
+          priority
+        />
         
         <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight via-brand-midnight/20 to-transparent" />
         
@@ -75,7 +72,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <div className="flex items-center justify-center gap-6 text-white/80">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50">
-                   <Image src={post.author?.avatar_url || "/avatar-placeholder.png"} alt={post.author?.full_name || "Author"} fill className="object-cover" />
+                   <Image src={getAvatarUrl(post.author?.avatar_url)} alt={post.author?.full_name || "Author"} fill className="object-cover" />
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-black text-white leading-none mb-1">{post.author?.full_name || 'GradBuzz Editor'}</p>
@@ -114,12 +111,14 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <footer className="mt-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-6">
              <div className="w-16 h-16 relative bg-white rounded-2xl border border-brand-border p-3 shadow-sm">
-                <Image src="/logo.png" alt="GradBuzz Logo" fill className="object-contain p-2" />
+                <Image src="/gradbuzz.png" alt="GradBuzz Logo" fill className="object-contain p-2" />
              </div>
              <div>
                 <p className="text-xs font-black text-brand-midnight uppercase tracking-[0.2em] mb-1">Published By</p>
                 <p className="text-lg font-display font-black text-brand-midnight">GradBuzz Editorial Team</p>
-                <p className="text-sm font-medium text-brand-midnight/40">Real advice for real student life.</p>
+                <p className="text-sm font-medium text-brand-midnight/40 leading-relaxed">
+                  Initiative by Sikshanext Private Limited. © 2026 All Rights Reserved.
+                </p>
              </div>
           </div>
           

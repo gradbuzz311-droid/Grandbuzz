@@ -2,17 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Users, 
-  ClipboardList, 
-  LogOut,
-  ChevronRight,
-  Loader2
-} from "lucide-react";
+import { Loader2 } from "lucide-react";
+import Sidebar from "@/components/admin/Sidebar";
+import Header from "@/components/admin/Header";
 
 export default function AdminLayout({
   children,
@@ -55,9 +48,9 @@ export default function AdminLayout({
         
         // STRICT REDIRECT: Block contributors from admin sub-links
         if (profile.role === 'contributor') {
-          const restrictedPaths = ['/admin/contributors', '/admin/applications'];
+          const restrictedPaths = ['/admin/contributors', '/admin/applications', '/admin'];
           if (restrictedPaths.includes(pathname)) {
-            router.push("/admin/posts");
+            router.push("/contributor");
             return;
           }
         }
@@ -69,82 +62,29 @@ export default function AdminLayout({
       setLoading(false);
     }
     checkUser();
-  }, [router]);
-
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+  }, [router, pathname]);
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
+      <div className="min-h-screen bg-[#FDFCF8] flex items-center justify-center">
         <Loader2 className="animate-spin text-brand-green" size={40} />
       </div>
     );
   }
 
-  const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
-    { name: "Posts", icon: FileText, path: "/admin/posts", roles: ["admin", "contributor"] },
-    { name: "Users", icon: Users, path: "/admin/contributors", roles: ["admin"] },
-    { name: "Applications", icon: ClipboardList, path: "/admin/applications", roles: ["admin"] },
-  ];
-
-  // Restoring proper filtering now that database is fixed
-  const filteredMenu = menuItems.filter(item => item.roles.includes(role || ''));
-
   return (
-    <div className="min-h-screen bg-brand-cream flex">
-      {/* Sidebar */}
-      <aside className="w-80 bg-white border-r border-brand-border flex flex-col sticky top-0 h-screen shadow-sm">
-        <div className="p-8">
-          <Link href="/" className="flex items-center gap-3 group">
-             <div className="w-10 h-10 bg-brand-midnight rounded-xl flex items-center justify-center text-white font-black text-xl">G</div>
-             <span className="font-display text-2xl font-bold text-brand-midnight">GradBuzz</span>
-          </Link>
-        </div>
-
-        <nav className="flex-1 px-4 space-y-2 mt-4">
-          {filteredMenu.map((item) => {
-            const isActive = pathname === item.path;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.path}
-                href={item.path}
-                className={`flex items-center justify-between px-6 py-4 rounded-[1.5rem] font-bold transition-all group ${
-                  isActive 
-                    ? "bg-brand-midnight text-white shadow-lg shadow-brand-midnight/10" 
-                    : "text-brand-midnight/40 hover:bg-brand-cream hover:text-brand-midnight"
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <Icon size={20} className={isActive ? "text-brand-green" : "group-hover:text-brand-green"} />
-                  {item.name}
-                </div>
-                {isActive && <ChevronRight size={16} className="text-brand-green" />}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-6 border-t border-brand-border">
-          <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-4 px-6 py-4 rounded-[1.5rem] font-bold text-red-500 hover:bg-red-50 transition-all"
-          >
-            <LogOut size={20} />
-            Logout
-          </button>
-        </div>
-      </aside>
-
+    <div className="min-h-screen bg-[#FDFCF8] flex">
+      <Sidebar role={role} />
+      
       {/* Main Content */}
-      <main className="flex-1 p-12 max-h-screen overflow-y-auto custom-scrollbar">
-        {children}
-      </main>
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-8 bg-brand-cream/20">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
