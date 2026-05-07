@@ -78,6 +78,8 @@ export default function PostsFeedPage() {
                       fill 
                       className="object-cover group-hover:scale-105 transition-transform duration-500" 
                       unoptimized={true}
+                      placeholder="blur"
+                      blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII="
                     />
                     <div className="absolute top-4 left-4">
                       {post.categories?.[0] && (

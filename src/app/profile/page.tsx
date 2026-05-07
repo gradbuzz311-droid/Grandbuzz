@@ -152,7 +152,7 @@ function ProfileContent() {
               items.map((post) => (
                 <Link key={post.id} href={`/posts/${post.slug}`} className="flex gap-4 p-4 bg-white rounded-2xl border border-brand-border hover:shadow-lg transition-all group">
                   <div className="w-24 h-24 rounded-xl overflow-hidden relative shrink-0">
-                    <Image src={getThumbnailUrl(post.thumbnail_url)} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform" />
+                    <Image src={getThumbnailUrl(post.thumbnail_url)} alt={post.title} fill className="object-cover group-hover:scale-105 transition-transform" unoptimized={true} placeholder="blur" blurDataURL="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=" />
                   </div>
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <h3 className="font-bold text-brand-midnight group-hover:text-brand-green transition-colors line-clamp-2">{post.title}</h3>

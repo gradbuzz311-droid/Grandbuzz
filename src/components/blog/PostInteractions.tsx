@@ -143,11 +143,11 @@ export default function PostInteractions({
       if (isCurrentlyLiked) {
         // Unlike
         await supabase.from('post_interactions').delete().eq('post_id', postId).eq('user_id', user?.id).eq('type', 'like');
-        await supabase.rpc('decrement_likes', { p_id: postId });
+        await supabase.rpc('decrement_likes', { post_id: postId });
       } else {
         // Like
         await supabase.from('post_interactions').insert({ post_id: postId, user_id: user?.id, type: 'like' });
-        await supabase.rpc('increment_likes', { p_id: postId });
+        await supabase.rpc('increment_likes', { post_id: postId });
       }
       setIsInteracting(false);
     }, 500); // 500ms debounce
