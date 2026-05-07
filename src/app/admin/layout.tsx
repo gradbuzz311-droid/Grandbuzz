@@ -50,8 +50,18 @@ export default function AdminLayout({
       if (error) {
         console.error("Layout role fetch error:", error);
         setRole('reader');
-      } else if (profile) {
+      } if (profile) {
         setRole(profile.role);
+        
+        // STRICT REDIRECT: Block contributors from admin sub-links
+        if (profile.role === 'contributor') {
+          const restrictedPaths = ['/admin/contributors', '/admin/applications'];
+          if (restrictedPaths.includes(pathname)) {
+            router.push("/admin/posts");
+            return;
+          }
+        }
+
         if (profile.role === 'reader') {
           router.push("/");
         }
