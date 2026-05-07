@@ -30,6 +30,8 @@ interface Contributor {
   updated_at: string;
 }
 
+export const dynamic = 'force-dynamic';
+
 export default function ContributorsPage() {
   const [contributors, setContributors] = useState<Contributor[]>([]);
   const [loading, setLoading] = useState(true);
@@ -194,6 +196,9 @@ export default function ContributorsPage() {
         <div>
           <h1 className="font-display text-4xl text-brand-midnight font-bold">Contributors</h1>
           <p className="text-brand-midnight/60 font-medium">Manage your verified team of writers and editors.</p>
+          <div className="mt-2 text-[10px] font-bold text-brand-green uppercase tracking-widest bg-brand-green/10 px-3 py-1 rounded-full inline-block">
+            Debug: {contributors.length} Users Found in Database
+          </div>
         </div>
         <div className="flex gap-3">
            <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 px-6 py-4 bg-brand-green text-brand-midnight font-bold rounded-2xl hover:scale-[1.02] transition-all shadow-xl shadow-brand-green/10">
