@@ -9,7 +9,8 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const supabase = await createClient();
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: authData } = await supabase.auth.getUser();
+  const user = authData?.user;
 
   const { data: post, error } = await supabase
     .from('posts')
@@ -51,7 +52,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           fill
           className="object-cover"
           priority
-          unoptimized={post.thumbnail_url?.startsWith('data:')}
+          unoptimized={true}
         />
       </div>
 

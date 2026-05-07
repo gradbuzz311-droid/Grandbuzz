@@ -38,7 +38,8 @@ export default function PostInteractions({
   }, [isLoggedIn]);
 
   const checkUserInteractions = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: authData } = await supabase.auth.getUser();
+    const user = authData?.user;
     if (!user) return;
 
     const { data } = await supabase
@@ -78,7 +79,8 @@ export default function PostInteractions({
         }
       } else {
         // Like
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: authData } = await supabase.auth.getUser();
+        const user = authData?.user;
         const { error } = await supabase
           .from('post_interactions')
           .insert({ post_id: postId, user_id: user?.id, type: 'like' });

@@ -85,7 +85,7 @@ export default function PostsFeedPage() {
                       alt={post.title} 
                       fill 
                       className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                      unoptimized={post.thumbnail_url?.startsWith('data:')}
+                      unoptimized={true}
                     />
                     <div className="absolute top-4 left-4">
                       {post.categories?.[0] && (

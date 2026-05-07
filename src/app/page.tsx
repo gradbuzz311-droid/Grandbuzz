@@ -109,7 +109,7 @@ export default function Home() {
                     alt={featuredPost.title}
                     fill 
                     className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
-                    unoptimized={featuredPost.thumbnail_url?.startsWith('data:')}
+                    unoptimized={true}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight via-brand-midnight/20 to-transparent" />
                   
@@ -207,7 +207,7 @@ export default function Home() {
                         alt={post.title} 
                         fill 
                         className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                        unoptimized={post.thumbnail_url?.startsWith('data:')}
+                        unoptimized={true}
                       />
                       <div className="absolute top-4 left-4">
                         {post.categories?.[0] && (
