@@ -39,7 +39,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
       <Navbar />
 
       {/* Hero Image Container with Gap */}
-      <div className="px-4 md:px-12 pt-6 max-w-6xl mx-auto">
+      <div className="px-4 md:px-12 pt-28 md:pt-32 max-w-6xl mx-auto">
         <div className="relative w-full aspect-[16/9] md:aspect-[21/9] bg-brand-midnight rounded-2xl md:rounded-3xl overflow-hidden">
           <Image
             src={getThumbnailUrl(post.thumbnail_url)}

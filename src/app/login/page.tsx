@@ -33,18 +33,25 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setError(error.message); setLoading(false); return; }
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const next = urlParams.get('next');
+
     const { data: profile } = await supabase.from('profiles').select('role').single();
-    if (profile?.role === 'admin') router.push("/admin");
+    if (next) router.push(next);
+    else if (profile?.role === 'admin') router.push("/admin");
     else if (profile?.role === 'contributor') router.push("/contributor");
     else router.push("/");
     router.refresh();
   };
 
   const handleOAuth = async (provider: 'google' | 'linkedin_oidc') => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const next = urlParams.get('next') || '/';
+
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${window.location.origin}/auth/callback`
+        redirectTo: `${window.location.origin}/auth/callback?next=${next}`
       }
     });
   };

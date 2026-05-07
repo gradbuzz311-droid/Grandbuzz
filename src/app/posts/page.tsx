@@ -22,7 +22,7 @@ export default function PostsFeedPage() {
       const { data } = await supabase
         .from('posts')
         .select(`
-          *,
+          id, slug, title, thumbnail_url, created_at, likes, author_id,
           author:profiles(full_name, avatar_url, role),
           categories:post_categories(category:categories(name))
         `)
@@ -107,9 +107,9 @@ export default function PostsFeedPage() {
                         <span className="text-[10px] font-bold text-brand-midnight/60">{authorName}</span>
                       </div>
                       <div className="flex items-center gap-4 text-brand-midnight/20">
-                         <div className="flex items-center gap-1.5">
-                            <Heart size={14} />
-                            <span className="text-[10px] font-black">{post.likes || 0}</span>
+                         <div className="flex items-center gap-1.5 text-brand-midnight/40 group-hover:text-red-500 transition-colors">
+                            <Heart size={16} />
+                            <span className="text-xs font-bold">{post.likes || 0}</span>
                          </div>
                          <div className="flex items-center gap-1.5">
                             <Clock size={14} />

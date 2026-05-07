@@ -49,7 +49,17 @@ export default function PostInteractions({
     if (isLoggedIn) {
       checkUserInteractions();
     }
+    // Fetch total comments count regardless of login status
+    fetchCommentCount();
   }, [isLoggedIn]);
+
+  const fetchCommentCount = async () => {
+    const { count } = await supabase
+      .from('post_comments')
+      .select('id', { count: 'exact', head: true })
+      .eq('post_id', postId);
+    if (count !== null) setComments(Array(count).fill({}));
+  };
 
   const checkUserInteractions = async () => {
     const { data: authData } = await supabase.auth.getUser();
@@ -171,7 +181,7 @@ export default function PostInteractions({
   };
 
   const toggleComments = () => {
-    if (!showComments) {
+    if (!showComments && (!comments[0] || !comments[0].id)) {
       fetchComments();
     }
     setShowComments(!showComments);
@@ -309,17 +319,11 @@ export default function PostInteractions({
               </p>
             </div>
             <div className="grid gap-3">
-              <Link 
-                href="/login" 
-                className="bg-brand-midnight text-white py-4 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all"
+              <button 
+                onClick={() => window.location.href = `/login?next=${encodeURIComponent(window.location.pathname)}`}
+                className="bg-brand-midnight text-white py-4 rounded-2xl font-bold hover:scale-105 active:scale-95 transition-all w-full"
               >
                 Sign In Now
-              </Link>
-              <button 
-                onClick={() => setShowLoginModal(false)}
-                className="text-sm font-bold text-brand-midnight/40 hover:text-brand-midnight transition-colors"
-              >
-                Maybe later
               </button>
             </div>
           </div>
