@@ -15,7 +15,8 @@ import {
   Briefcase,
   Lock,
   Loader2,
-  Camera
+  Camera,
+  AlignLeft
 } from "lucide-react";
 
 interface Contributor {
@@ -24,6 +25,7 @@ interface Contributor {
   email: string;
   role: string;
   role_description: string;
+  bio: string;
   avatar_url: string;
   updated_at: string;
 }
@@ -42,6 +44,7 @@ export default function ContributorsPage() {
     password: "",
     full_name: "",
     role_description: "",
+    bio: ""
   });
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -86,63 +89,40 @@ export default function ContributorsPage() {
   const handleAddNew = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // IMPORTANT: Create a separate client that DOES NOT persist the session
-    // This prevents the admin from being logged out when creating a new user.
     const supabase = createClient();
+
     const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
-    
-    // We need the URL and Key from env
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-    
-    const signupClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-        detectSessionInUrl: false
-      }
-    });
+    const signupClient = createSupabaseClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false } }
+    );
 
     try {
-      // 1. Upload Avatar if exists using the AUTHENTICATED admin client
       let publicUrl = "";
       if (avatarFile) {
-        const fileExt = avatarFile.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, avatarFile);
-
-        if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
-        
-        const { data: { publicUrl: url } } = supabase.storage
-          .from('avatars')
-          .getPublicUrl(fileName);
+        const fileName = `${Math.random()}.${avatarFile.name.split('.').pop()}`;
+        const { error: uploadError } = await supabase.storage.from('avatars').upload(fileName, avatarFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl: url } } = supabase.storage.from('avatars').getPublicUrl(fileName);
         publicUrl = url;
       }
 
-      // 2. Create user in Auth
       const { data, error: authError } = await signupClient.auth.signUp({
         email: formData.email,
         password: formData.password,
-        options: {
-          data: {
-            full_name: formData.full_name,
-            avatar_url: publicUrl
-          }
-        }
+        options: { data: { full_name: formData.full_name, avatar_url: publicUrl } }
       });
 
       if (authError) throw authError;
 
       if (data.user) {
-        // 3. Update profile details using the main client (the admin's session)
         const { error: profileError } = await supabase
           .from('profiles')
           .update({ 
             role: 'contributor',
             role_description: formData.role_description,
+            bio: formData.bio,
             full_name: formData.full_name,
             avatar_url: publicUrl
           })
@@ -152,13 +132,13 @@ export default function ContributorsPage() {
 
         alert("Contributor added successfully!");
         setIsModalOpen(false);
-        setFormData({ email: "", password: "", full_name: "", role_description: "" });
+        setFormData({ email: "", password: "", full_name: "", role_description: "", bio: "" });
         setAvatarFile(null);
         setAvatarPreview(null);
         await fetchContributors();
       }
     } catch (err: any) {
-      alert(err.message || "Failed to add contributor.");
+      alert(err.message || "Error adding contributor.");
     } finally {
       setIsSubmitting(false);
     }
@@ -205,22 +185,40 @@ export default function ContributorsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {loading ? Array(6).fill(0).map((_, i) => <div key={i} className="bg-white border border-brand-border rounded-[2.5rem] p-8 h-64 animate-pulse" />) : filteredContributors.map((user) => (
-          <div key={user.id} className="group bg-white border border-brand-border rounded-[2.5rem] p-8 transition-all hover:shadow-xl">
+        {loading ? Array(6).fill(0).map((_, i) => <div key={i} className="bg-white border border-brand-border rounded-[2.5rem] p-8 h-64 animate-pulse" />) : filteredContributors.length === 0 ? (
+          <div className="col-span-full py-20 text-center flex flex-col items-center">
+            <Users size={48} className="text-brand-border mb-4" />
+            <h3 className="text-xl font-display font-bold text-brand-midnight mb-2">No contributors found</h3>
+          </div>
+        ) : filteredContributors.map((user) => (
+          <div key={user.id} className="group bg-white border border-brand-border rounded-[2.5rem] p-8 transition-all hover:shadow-xl flex flex-col h-full">
             <div className="flex justify-between items-start mb-6">
               <div className="w-16 h-16 rounded-[1.5rem] bg-brand-cream border border-brand-border flex items-center justify-center text-brand-midnight text-2xl font-display font-bold overflow-hidden shadow-inner">
                 {user.avatar_url ? <img src={user.avatar_url} alt={user.full_name} className="w-full h-full object-cover" /> : user.full_name?.charAt(0)}
               </div>
               <div className="px-3 py-1 rounded-full bg-brand-green/10 text-brand-green text-[10px] font-bold uppercase tracking-widest">{user.role}</div>
             </div>
-            <div className="mb-8">
-              <h3 className="text-xl font-display font-bold text-brand-midnight mb-1 group-hover:text-brand-green">{user.full_name}</h3>
-              <div className="flex items-center gap-2 text-brand-midnight/40 text-sm font-medium mb-3"><Mail size={14} />{user.email || "No email"}</div>
-              <div className="flex items-center gap-2 text-brand-midnight/70 text-xs font-bold uppercase tracking-wider"><Briefcase size={12} className="text-brand-green" />{user.role_description || "Contributor"}</div>
+            
+            <div className="flex-grow">
+              <h3 className="text-xl font-display font-bold text-brand-midnight mb-1 group-hover:text-brand-green transition-colors">{user.full_name}</h3>
+              <div className="flex items-center gap-2 text-brand-midnight/70 text-xs font-bold uppercase tracking-wider mb-4">
+                <Briefcase size={12} className="text-brand-green" />
+                {user.role_description || "Verified Contributor"}
+              </div>
+              
+              {user.bio && (
+                <p className="text-brand-midnight/60 text-sm leading-relaxed mb-6 line-clamp-3 italic">
+                  "{user.bio}"
+                </p>
+              )}
             </div>
-            <div className="flex items-center gap-2 pt-6 border-t border-brand-border/50">
-              <button onClick={() => handleRemove(user.id)} className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand-cream/50 text-brand-midnight/60 font-bold rounded-xl hover:bg-red-50 hover:text-red-600 text-sm"><UserMinus size={16} />Remove</button>
-              <button className="p-3 bg-brand-cream/50 text-brand-midnight/60 rounded-xl hover:bg-brand-midnight hover:text-white"><Shield size={16} /></button>
+
+            <div className="space-y-4 pt-6 border-t border-brand-border/50 mt-auto">
+              <div className="flex items-center gap-2 text-brand-midnight/40 text-xs font-medium"><Mail size={14} />{user.email || "No email"}</div>
+              <div className="flex items-center gap-2">
+                <button onClick={() => handleRemove(user.id)} className="flex-1 flex items-center justify-center gap-2 py-3 px-4 bg-brand-cream/50 text-brand-midnight/60 font-bold rounded-xl hover:bg-red-50 hover:text-red-600 text-sm transition-all"><UserMinus size={16} />Remove</button>
+                <button className="p-3 bg-brand-cream/50 text-brand-midnight/60 rounded-xl hover:bg-brand-midnight hover:text-white transition-all"><Shield size={16} /></button>
+              </div>
             </div>
           </div>
         ))}
@@ -232,37 +230,46 @@ export default function ContributorsPage() {
           <div className="bg-white w-full max-w-xl rounded-[2.5rem] shadow-2xl relative z-10 overflow-hidden animate-in zoom-in-95 duration-300">
             <div className="p-8 border-b border-brand-border bg-brand-cream/30 flex justify-between items-center">
               <div>
-                <h2 className="text-2xl font-display font-bold text-brand-midnight">Add New Contributor</h2>
+                <h2 className="text-2xl font-display font-bold text-brand-midnight">Add Contributor</h2>
                 <p className="text-sm text-brand-midnight/40 font-medium">Create a verified account for your team.</p>
               </div>
               <button onClick={() => setIsModalOpen(false)} className="p-2 hover:bg-brand-midnight/5 rounded-xl"><X size={24} className="text-brand-midnight/40" /></button>
             </div>
 
-            <form onSubmit={handleAddNew} className="p-8 space-y-6">
-              {/* Avatar Upload */}
+            <form onSubmit={handleAddNew} className="p-8 space-y-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
               <div className="flex flex-col items-center gap-4 mb-6">
                 <div className="relative w-24 h-24 rounded-3xl bg-brand-cream border-2 border-dashed border-brand-border flex items-center justify-center overflow-hidden group">
-                  {avatarPreview ? (
-                    <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
-                  ) : (
-                    <Camera size={32} className="text-brand-midnight/20" />
-                  )}
+                  {avatarPreview ? <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" /> : <Camera size={32} className="text-brand-midnight/20" />}
                   <label className="absolute inset-0 bg-brand-midnight/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                    <Upload size={20} className="text-white" />
-                    <input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
+                    <Upload size={20} className="text-white" /><input type="file" className="hidden" accept="image/*" onChange={handleFileChange} />
                   </label>
                 </div>
-                <span className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest">Click to upload photo</span>
+                <span className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest">Profile Photo</span>
               </div>
 
               <div className="grid grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Full Name</label>
-                  <input required type="text" placeholder="John Doe" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                  <input required type="text" placeholder="John Doe" value={formData.full_name} onChange={(e) => setFormData({...formData, full_name: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Working Company</label>
-                  <input required type="text" placeholder="e.g. Developer at Google" value={formData.role_description} onChange={(e) => setFormData({...formData, role_description: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                  <input required type="text" placeholder="e.g. Developer at Google" value={formData.role_description} onChange={(e) => setFormData({...formData, role_description: e.target.value})} className="w-full px-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Short Bio / Description</label>
+                <div className="relative">
+                  <AlignLeft className="absolute left-4 top-4 text-brand-midnight/20" size={18} />
+                  <textarea 
+                    required 
+                    placeholder="Tell us about their expertise..." 
+                    value={formData.bio} 
+                    onChange={(e) => setFormData({...formData, bio: e.target.value})} 
+                    rows={3}
+                    className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors resize-none"
+                  />
                 </div>
               </div>
 
@@ -270,20 +277,20 @@ export default function ContributorsPage() {
                 <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Email Address</label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
-                  <input required type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                  <input required type="email" placeholder="john@example.com" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Temporary Password</label>
+                <label className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest ml-1">Password</label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-midnight/20" size={18} />
-                  <input required type="password" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium" />
+                  <input required type="password" placeholder="••••••••" value={formData.password} onChange={(e) => setFormData({...formData, password: e.target.value})} className="w-full pl-12 pr-4 py-3 bg-brand-cream/30 border border-brand-border rounded-xl outline-none font-medium focus:border-brand-green transition-colors" />
                 </div>
               </div>
 
               <div className="pt-4 flex gap-3">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 px-6 border border-brand-border text-brand-midnight/60 font-bold rounded-2xl">Cancel</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="flex-1 py-4 px-6 border border-brand-border text-brand-midnight/60 font-bold rounded-2xl hover:bg-brand-cream/50">Cancel</button>
                 <button type="submit" disabled={isSubmitting} className="flex-[2] py-4 px-6 bg-brand-green text-brand-midnight font-bold rounded-2xl shadow-xl flex items-center justify-center gap-2">
                   {isSubmitting ? <Loader2 className="animate-spin" size={20} /> : <Plus size={20} />} Create Account
                 </button>
