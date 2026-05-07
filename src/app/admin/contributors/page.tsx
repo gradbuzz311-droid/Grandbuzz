@@ -86,7 +86,23 @@ export default function ContributorsPage() {
   const handleAddNew = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+
+    // IMPORTANT: Create a separate client that DOES NOT persist the session
+    // This prevents the admin from being logged out when creating a new user.
     const supabase = createClient();
+    const { createClient: createSupabaseClient } = await import('@supabase/supabase-js');
+    
+    // We need the URL and Key from env
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+    
+    const signupClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false
+      }
+    });
 
     try {
       // 1. Upload Avatar if exists
@@ -94,20 +110,20 @@ export default function ContributorsPage() {
       if (avatarFile) {
         const fileExt = avatarFile.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const { error: uploadError, data } = await supabase.storage
+        const { error: uploadError } = await signupClient.storage
           .from('avatars')
           .upload(fileName, avatarFile);
 
         if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
         
-        const { data: { publicUrl: url } } = supabase.storage
+        const { data: { publicUrl: url } } = signupClient.storage
           .from('avatars')
           .getPublicUrl(fileName);
         publicUrl = url;
       }
 
       // 2. Create user in Auth
-      const { data, error: authError } = await supabase.auth.signUp({
+      const { data, error: authError } = await signupClient.auth.signUp({
         email: formData.email,
         password: formData.password,
         options: {
@@ -121,7 +137,7 @@ export default function ContributorsPage() {
       if (authError) throw authError;
 
       if (data.user) {
-        // 3. Update profile details
+        // 3. Update profile details using the main client (the admin's session)
         const { error: profileError } = await supabase
           .from('profiles')
           .update({ 
@@ -142,7 +158,7 @@ export default function ContributorsPage() {
         await fetchContributors();
       }
     } catch (err: any) {
-      alert(err.message || "Failed to add contributor. Please ensure 'avatars' bucket is created and public in Supabase Storage.");
+      alert(err.message || "Failed to add contributor.");
     } finally {
       setIsSubmitting(false);
     }
