@@ -74,19 +74,39 @@ export default function PostInteractions({
       .select('id')
       .eq('post_id', postId)
       .eq('user_id', user.id)
-      .single();
+      .maybeSingle();
 
     if (bookmarkData) setHasBookmarked(true);
   };
 
   const fetchComments = async () => {
-    const { data } = await supabase
+    const { data: commentsData } = await supabase
       .from('post_comments')
-      .select('id, content, created_at, author:profiles(full_name, avatar_url)')
+      .select('id, content, created_at, user_id')
       .eq('post_id', postId)
       .order('created_at', { ascending: false });
     
-    if (data) setComments(data);
+    if (commentsData && commentsData.length > 0) {
+      // Fetch profiles manually to avoid Foreign Key relation errors
+      const userIds = [...new Set(commentsData.map(c => c.user_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, full_name, avatar_url')
+        .in('id', userIds);
+        
+      const profileMap = (profiles || []).reduce((acc: any, p: any) => {
+        acc[p.id] = p;
+        return acc;
+      }, {});
+
+      const enrichedComments = commentsData.map(c => ({
+        ...c,
+        author: profileMap[c.user_id] || { full_name: 'Anonymous', avatar_url: null }
+      }));
+      setComments(enrichedComments);
+    } else {
+      setComments([]);
+    }
   };
 
   const handleLike = async () => {
@@ -169,11 +189,23 @@ export default function PostInteractions({
         user_id: currentUser.id,
         content: newComment.trim()
       })
-      .select('id, content, created_at, author:profiles(full_name, avatar_url)')
-      .single();
+      .select('id, content, created_at, user_id')
+      .maybeSingle();
 
     if (!error && data) {
-      setComments([data, ...comments]);
+      // Fetch the current user's profile to display immediately
+      const { data: myProfile } = await supabase
+        .from('profiles')
+        .select('full_name, avatar_url')
+        .eq('id', currentUser.id)
+        .maybeSingle();
+
+      const newCommentData = {
+        ...data,
+        author: myProfile || { full_name: 'You', avatar_url: null }
+      };
+      
+      setComments([newCommentData, ...comments]);
       setNewComment("");
     }
     setIsSubmitting(false);

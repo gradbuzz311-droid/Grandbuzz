@@ -57,13 +57,12 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         <header className="mb-16 space-y-8">
           <div className="flex flex-wrap gap-3">
             {post.categories?.map((c: any) => (
-              <Link 
+              <span 
                 key={c.category.slug}
-                href={`/categories/${c.category.slug}`}
-                className="bg-brand-green/10 text-brand-green px-4 py-1.5 rounded-lg text-[11px] font-semibold hover:bg-brand-green hover:text-brand-midnight transition-all border border-brand-green/20"
+                className="bg-brand-green/10 text-brand-green px-4 py-1.5 rounded-lg text-[11px] font-semibold border border-brand-green/20 cursor-default"
               >
                 {c.category.name}
-              </Link>
+              </span>
             ))}
           </div>
           
