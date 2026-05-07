@@ -40,8 +40,8 @@ export default function Sidebar({ role }: SidebarProps) {
   return (
     <aside className="w-80 bg-white border-r border-brand-border flex flex-col sticky top-0 h-screen shadow-sm">
       <div className="p-8">
-        <Link href="/" className="relative h-12 w-40 block">
-          <Image src="/logo.png" alt="GradBuzz Logo" fill className="object-contain" />
+        <Link href="/" className="relative h-12 w-48 block">
+          <Image src="/gradbuzz.png" alt="GradBuzz Logo" fill className="object-contain" />
         </Link>
       </div>
 

@@ -11,7 +11,6 @@ import {
   BookOpen, 
   Zap,
   Heart,
-  MessageSquare,
   Clock
 } from "lucide-react";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
@@ -19,16 +18,22 @@ import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 export default function Home() {
   const [featuredPost, setFeaturedPost] = useState<any>(null);
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [stats, setStats] = useState({
+    posts: 0,
+    contributors: 0,
+    readers: 0,
+    reach: 0
+  });
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     async function fetchData() {
-      // Fetch featured post
+      // 1. Fetch featured post
       const { data: featured } = await supabase
         .from('posts')
         .select(`
-          *,
+          id, title, slug, meta_description, thumbnail_url, created_at,
           author:profiles(full_name, avatar_url),
           categories:post_categories(category:categories(name))
         `)
@@ -38,17 +43,33 @@ export default function Home() {
         .limit(1)
         .single();
 
-      // Fetch recent posts
+      // 2. Fetch recent posts
       const { data: recent } = await supabase
         .from('posts')
         .select(`
-          *,
+          id, title, slug, thumbnail_url, view_count, likes,
           author:profiles(full_name, avatar_url),
           categories:post_categories(category:categories(name))
         `)
         .eq('status', 'published')
         .order('created_at', { ascending: false })
         .limit(6);
+
+      // 3. Fetch Real Stats
+      const [postsCount, contributorsCount, viewsSum] = await Promise.all([
+        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'published'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'contributor'),
+        supabase.from('posts').select('view_count').eq('status', 'published')
+      ]);
+
+      const totalViews = viewsSum.data?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0;
+
+      setStats({
+        posts: postsCount.count || 0,
+        contributors: contributorsCount.count || 0,
+        readers: totalViews > 1000 ? Math.floor(totalViews/1000) : totalViews,
+        reach: (postsCount.count || 0) * 125 // Conservative reach estimation
+      });
 
       setFeaturedPost(featured);
       setRecentPosts(recent || []);
@@ -58,7 +79,7 @@ export default function Home() {
   }, [supabase]);
 
   return (
-    <div className="min-h-screen bg-[#FDFCF8] font-sans selection:bg-brand-green/30">
+    <div className="min-h-screen bg-[#FDFCF8] font-sans selection:bg-brand-green/30 overflow-x-hidden">
       {/* Premium Navbar */}
       <nav className="h-24 px-8 flex items-center justify-between border-b border-brand-border bg-white/80 backdrop-blur-md sticky top-0 z-50">
         <Link href="/" className="relative h-12 w-48">
@@ -99,7 +120,7 @@ export default function Home() {
                       </span>
                     ))}
                   </div>
-                  <h1 className="font-display text-4xl md:text-7xl font-black text-white leading-[0.95] tracking-tighter">
+                  <h1 className="font-display text-4xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
                     {featuredPost.title}
                   </h1>
                   <p className="text-white/60 text-lg md:text-xl font-medium line-clamp-2 max-w-2xl leading-relaxed">
@@ -124,15 +145,15 @@ export default function Home() {
         <section className="bg-white border-y border-brand-border py-12">
           <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8">
             {[
-              { label: 'Published Insights', value: '120+', icon: BookOpen },
-              { label: 'Active Contributors', value: '45+', icon: Users },
-              { label: 'Student Readers', value: '12k+', icon: TrendingUp },
-              { label: 'Weekly Reach', value: '25k+', icon: Zap },
+              { label: 'Published Insights', value: `${stats.posts}+`, icon: BookOpen },
+              { label: 'Active Contributors', value: `${stats.contributors}+`, icon: Users },
+              { label: 'Student Readers', value: `${stats.readers}k+`, icon: TrendingUp },
+              { label: 'Weekly Reach', value: `${stats.reach}+`, icon: Zap },
             ].map((stat, i) => (
               <div key={i} className="space-y-2 group">
                 <stat.icon className="text-brand-green group-hover:scale-110 transition-transform" size={20} />
-                <h3 className="text-3xl font-display font-black text-brand-midnight tracking-tighter">{stat.value}</h3>
-                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-widest">{stat.label}</p>
+                <h3 className="text-3xl font-display font-black text-brand-midnight tracking-tight">{stat.value}</h3>
+                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-widest leading-none">{stat.label}</p>
               </div>
             ))}
           </div>
@@ -142,21 +163,22 @@ export default function Home() {
         <section className="max-w-7xl mx-auto px-6 py-24">
           <div className="flex items-end justify-between mb-16">
             <div className="space-y-4">
-              <h2 className="font-display text-5xl md:text-7xl font-black text-brand-midnight tracking-tighter leading-none">
+              <h2 className="font-display text-5xl md:text-7xl font-black text-brand-midnight tracking-tight leading-[0.9] mb-4">
                 Latest <br/>Intelligence.
               </h2>
-              <p className="text-brand-midnight/40 font-medium max-w-md">
+              <p className="text-brand-midnight/40 font-medium max-w-md text-lg">
                 Raw, unfiltered advice from the students who are currently navigating the grind.
               </p>
             </div>
-            <Link href="/posts" className="hidden md:flex items-center gap-2 text-xs font-black text-brand-midnight uppercase tracking-widest group">
-              View All Insights
-              <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform" />
-            </Link>
+            {/* Removed Redundant Link Here */}
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {recentPosts.map((post) => (
+            {loading ? (
+               Array(6).fill(0).map((_, i) => (
+                 <div key={i} className="h-96 rounded-[32px] bg-brand-cream animate-pulse" />
+               ))
+            ) : recentPosts.map((post) => (
               <Link key={post.id} href={`/posts/${post.slug}`} className="group flex flex-col h-full bg-white rounded-[32px] border border-brand-border p-4 hover:shadow-2xl hover:shadow-brand-midnight/5 transition-all">
                 <div className="relative aspect-[4/3] rounded-2xl overflow-hidden mb-6">
                   <Image 
@@ -175,25 +197,25 @@ export default function Home() {
                 </div>
                 
                 <div className="flex flex-col flex-grow px-2">
-                  <h3 className="font-display text-2xl font-black text-brand-midnight mb-4 leading-tight group-hover:text-brand-green transition-colors">
+                  <h3 className="font-display text-2xl font-black text-brand-midnight mb-6 leading-tight group-hover:text-brand-green transition-colors tracking-tight">
                     {post.title}
                   </h3>
                   
                   <div className="mt-auto flex items-center justify-between pt-6 border-t border-brand-border/50">
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full overflow-hidden relative border border-brand-border">
+                      <div className="w-8 h-8 rounded-full overflow-hidden relative border border-brand-border bg-brand-cream">
                         <Image src={getAvatarUrl(post.author?.avatar_url)} alt="Author" fill className="object-cover" />
                       </div>
                       <span className="text-[10px] font-bold text-brand-midnight/60">{post.author?.full_name || "GradBuzz Writer"}</span>
                     </div>
-                    <div className="flex items-center gap-3 text-brand-midnight/30">
+                    <div className="flex items-center gap-3 text-brand-midnight/20">
                        <div className="flex items-center gap-1">
                           <Heart size={14} />
-                          <span className="text-[10px] font-bold">{post.likes || 0}</span>
+                          <span className="text-[10px] font-black">{post.likes || 0}</span>
                        </div>
                        <div className="flex items-center gap-1">
                           <Clock size={14} />
-                          <span className="text-[10px] font-bold">5m</span>
+                          <span className="text-[10px] font-black">5m</span>
                        </div>
                     </div>
                   </div>
@@ -202,8 +224,8 @@ export default function Home() {
             ))}
           </div>
           
-          <div className="mt-16 text-center">
-            <Link href="/posts" className="inline-flex items-center gap-2 text-sm font-black text-brand-midnight border-b-2 border-brand-green pb-1 hover:text-brand-green transition-all">
+          <div className="mt-20 text-center">
+            <Link href="/posts" className="inline-flex items-center gap-3 px-10 py-5 bg-brand-midnight text-white text-xs font-black uppercase tracking-[0.2em] rounded-2xl hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-midnight/10">
               Load More Stories
               <ArrowRight size={18} />
             </Link>
