@@ -39,14 +39,13 @@ export default function PostsFeedPage() {
     <div className="min-h-screen bg-[#FDFCF8]">
       {/* Navigation */}
       <nav className="h-20 bg-white border-b border-brand-border sticky top-0 z-50 px-6 flex items-center justify-between">
+        <Link href="/" className="relative h-8 w-32 shrink-0">
+          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" />
+        </Link>
         <Link href="/" className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-brand-midnight/40 hover:text-brand-midnight transition-colors">
-          <ArrowLeft size={16} />
           Back Home
+          <ArrowLeft size={16} className="rotate-180" />
         </Link>
-        <Link href="/" className="relative h-8 w-32">
-          <Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain" />
-        </Link>
-        <div className="w-24" /> {/* Spacer */}
       </nav>
 
       <main className="max-w-7xl mx-auto px-6 py-16">
@@ -72,62 +71,65 @@ export default function PostsFeedPage() {
              Array(6).fill(0).map((_, i) => (
                <div key={i} className="h-96 rounded-[32px] bg-brand-cream animate-pulse" />
              ))
-          ) : posts.map((post) => {
-            const isAuthorAdmin = post.author?.role === 'admin';
-            const authorName = isAuthorAdmin ? "GradBuzz" : (post.author?.full_name || "GradBuzz Writer");
-            const authorAvatar = isAuthorAdmin ? "/logo_nobg.png" : getAvatarUrl(post.author?.avatar_url);
+          ) : (
+            posts.map((post) => {
+              const isAuthorAdmin = post.author?.role === 'admin';
+              const authorName = isAuthorAdmin ? "GradBuzz" : (post.author?.full_name || "GradBuzz Writer");
+              const authorAvatar = isAuthorAdmin ? "/logo_nobg.png" : getAvatarUrl(post.author?.avatar_url);
 
-            return (
-              <Link key={post.id} href={`/posts/${post.slug}`} className="group flex flex-col h-full bg-white rounded-[32px] border border-brand-border p-5 hover:shadow-2xl hover:shadow-brand-midnight/5 transition-all">
-                <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-6">
-                  <Image 
-                    src={getThumbnailUrl(post.thumbnail_url)} 
-                    alt={post.title} 
-                    fill 
-                    className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                    unoptimized={post.thumbnail_url?.startsWith('data:')}
-                  />
-                  <div className="absolute top-4 left-4">
-                    {post.categories?.[0] && (
-                      <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-brand-midnight text-[8px] font-black uppercase tracking-widest rounded-lg">
-                        {post.categories[0].category.name}
-                      </span>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="flex flex-col flex-grow">
-                  <h3 className="font-display text-2xl font-black text-brand-midnight mb-6 leading-tight group-hover:text-brand-green transition-colors tracking-tight">
-                    {post.title}
-                  </h3>
-                  
-                  <div className="mt-auto flex items-center justify-between pt-6 border-t border-brand-border/50">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full overflow-hidden relative border border-brand-border bg-white">
-                        <Image 
-                          src={authorAvatar} 
-                          alt={authorName} 
-                          fill 
-                          className="object-cover" 
-                          unoptimized={authorAvatar.startsWith('data:')}
-                        />
-                      </div>
-                      <span className="text-[10px] font-bold text-brand-midnight/60">{authorName}</span>
+              return (
+                <Link key={post.id} href={`/posts/${post.slug}`} className="group flex flex-col h-full bg-white rounded-[32px] border border-brand-border p-5 hover:shadow-2xl hover:shadow-brand-midnight/5 transition-all">
+                  <div className="relative aspect-[16/10] rounded-2xl overflow-hidden mb-6">
+                    <Image 
+                      src={getThumbnailUrl(post.thumbnail_url)} 
+                      alt={post.title} 
+                      fill 
+                      className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                      unoptimized={post.thumbnail_url?.startsWith('data:')}
+                    />
+                    <div className="absolute top-4 left-4">
+                      {post.categories?.[0] && (
+                        <span className="px-3 py-1 bg-white/90 backdrop-blur-md text-brand-midnight text-[8px] font-black uppercase tracking-widest rounded-lg">
+                          {post.categories[0].category.name}
+                        </span>
+                      )}
                     </div>
-                  <div className="flex items-center gap-4 text-brand-midnight/20">
-                     <div className="flex items-center gap-1.5">
-                        <Heart size={14} />
-                        <span className="text-[10px] font-black">{post.likes || 0}</span>
-                     </div>
-                     <div className="flex items-center gap-1.5">
-                        <Clock size={14} />
-                        <span className="text-[10px] font-black">5m</span>
-                     </div>
                   </div>
-                </div>
-              </div>
-            </Link>
-          ))}
+                  
+                  <div className="flex flex-col flex-grow">
+                    <h3 className="font-display text-2xl font-black text-brand-midnight mb-6 leading-tight group-hover:text-brand-green transition-colors tracking-tight">
+                      {post.title}
+                    </h3>
+                    
+                    <div className="mt-auto flex items-center justify-between pt-6 border-t border-brand-border/50">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full overflow-hidden relative border border-brand-border bg-white">
+                          <Image 
+                            src={authorAvatar} 
+                            alt={authorName} 
+                            fill 
+                            className="object-cover" 
+                            unoptimized={true}
+                          />
+                        </div>
+                        <span className="text-[10px] font-bold text-brand-midnight/60">{authorName}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-brand-midnight/20">
+                         <div className="flex items-center gap-1.5">
+                            <Heart size={14} />
+                            <span className="text-[10px] font-black">{post.likes || 0}</span>
+                         </div>
+                         <div className="flex items-center gap-1.5">
+                            <Clock size={14} />
+                            <span className="text-[10px] font-black">5m</span>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
+          )}
         </div>
       </main>
 

@@ -43,67 +43,86 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </div>
       </nav>
 
-      {/* Article Hero */}
-      <header className="relative w-full h-[70vh] min-h-[500px] bg-brand-midnight overflow-hidden">
+      {/* Hero Image Container */}
+      <div className="relative w-full aspect-[21/9] min-h-[300px] md:min-h-[450px] bg-brand-midnight overflow-hidden">
         <Image
           src={getThumbnailUrl(post.thumbnail_url)}
           alt={post.title}
           fill
-          className="object-cover opacity-70"
+          className="object-cover"
           priority
           unoptimized={post.thumbnail_url?.startsWith('data:')}
         />
-        
-        <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight via-brand-midnight/20 to-transparent" />
-        
-        <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 px-6 text-center">
-          <div className="max-w-4xl space-y-8">
-            <div className="flex flex-wrap justify-center gap-3">
-              {post.categories?.map((c: any) => (
-                <Link 
-                  key={c.category.slug}
-                  href={`/categories/${c.category.slug}`}
-                  className="bg-brand-green text-brand-midnight px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform border border-brand-green/20"
-                >
-                  {c.category.name}
-                </Link>
-              ))}
+      </div>
+
+      <main className="max-w-4xl mx-auto px-6 pt-12 pb-20">
+        {/* Article Metadata Below Image */}
+        <header className="mb-16 space-y-8">
+          <div className="flex flex-wrap gap-3">
+            {post.categories?.map((c: any) => (
+              <Link 
+                key={c.category.slug}
+                href={`/categories/${c.category.slug}`}
+                className="bg-brand-green/10 text-brand-green px-5 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-brand-green hover:text-brand-midnight transition-all border border-brand-green/20"
+              >
+                {c.category.name}
+              </Link>
+            ))}
+          </div>
+          
+          <h1 className="font-display text-4xl md:text-7xl font-black text-brand-midnight leading-[1.1] tracking-tight">
+            {post.title}
+          </h1>
+          
+          <div className="flex flex-wrap items-center gap-8 py-8 border-y border-brand-border/50">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full overflow-hidden border border-brand-border relative bg-white shrink-0">
+                 <Image 
+                  src={authorAvatar} 
+                  alt={authorName} 
+                  fill 
+                  className="object-cover" 
+                  unoptimized={true}
+                 />
+              </div>
+              <div>
+                <p className="text-xs font-black text-brand-midnight uppercase tracking-widest leading-none mb-1">{authorName}</p>
+                <p className="text-[10px] font-bold text-brand-midnight/40 uppercase tracking-widest">
+                  {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                </p>
+              </div>
             </div>
-            
-            <h1 className="font-display text-5xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
-              {post.title}
-            </h1>
-            
-            <div className="flex items-center justify-center gap-6 text-white/80">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50 bg-white">
-                   <Image 
-                    src={authorAvatar} 
-                    alt={authorName} 
-                    fill 
-                    className="object-cover" 
-                    unoptimized={authorAvatar.startsWith('data:')}
-                   />
-                </div>
-                <div className="text-left">
-                  <p className="text-sm font-black text-white leading-none mb-1">{authorName}</p>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-brand-green">
-                    {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
-                  </p>
-                </div>
+
+            <div className="flex items-center gap-8">
+              <div className="w-px h-8 bg-brand-border/50 hidden sm:block" />
+              <div>
+                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-widest leading-none mb-1">Read Time</p>
+                <p className="text-sm font-bold text-brand-midnight">5 Mins</p>
               </div>
-              <div className="w-px h-8 bg-white/10" />
-              <div className="text-left">
-                 <p className="text-[10px] font-black text-white/40 uppercase tracking-widest leading-none mb-1">Read Time</p>
-                 <p className="text-sm font-bold text-white">5 Mins</p>
-              </div>
+            </div>
+
+            <div className="ml-auto">
+              <button 
+                onClick={() => {
+                  if (navigator.share) {
+                    navigator.share({
+                      title: post.title,
+                      url: window.location.href,
+                    });
+                  } else {
+                    navigator.clipboard.writeText(window.location.href);
+                    alert("Link copied to clipboard!");
+                  }
+                }}
+                className="flex items-center gap-2 px-6 py-3 bg-brand-midnight text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-midnight/10"
+              >
+                Share Story
+              </button>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Article Content */}
-      <div className="max-w-4xl mx-auto px-6 py-20">
+        {/* Article Content */}
         <div 
           className="prose prose-xl prose-brand max-w-none font-sans text-brand-midnight/90 leading-relaxed 
           prose-headings:font-display prose-headings:font-black prose-headings:text-brand-midnight 
@@ -112,35 +131,32 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         />
         
         {/* Social Interactions */}
-        <PostInteractions 
-          postId={post.id} 
-          initialLikes={post.likes} 
-          initialComments={post.comments} 
-          isLoggedIn={!!user} 
-        />
+        <div className="mt-20">
+          <PostInteractions 
+            postId={post.id} 
+            initialLikes={post.likes} 
+            initialComments={post.comments} 
+            isLoggedIn={!!user} 
+          />
+        </div>
         
-        <footer className="mt-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-10">
+        <footer className="mt-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-6">
-             <div className="w-20 h-20 relative">
+             <div className="w-16 h-16 relative">
                 <Image src="/logo_nobg.png" alt="GradBuzz Logo" fill className="object-contain" />
              </div>
-             <div>
-                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em] mb-1">
+             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em]">
                    Initiative by Sikshanext Private Limited.
                 </p>
+                <div className="hidden md:block w-1 h-1 bg-brand-midnight/10 rounded-full" />
                 <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
                    © 2026 All Rights Reserved.
                 </p>
              </div>
           </div>
-          
-          <div className="flex gap-4">
-             <button className="flex items-center gap-2 px-6 py-3 bg-brand-midnight text-white rounded-xl font-bold hover:scale-105 active:scale-95 transition-all">
-                Share this story
-             </button>
-          </div>
         </footer>
-      </div>
+      </main>
     </article>
   );
 }
