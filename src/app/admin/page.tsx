@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 import { 
   FileText, 
   Clock, 
@@ -20,6 +21,7 @@ export default function AdminDashboard() {
     applications: 0
   });
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     async function getStats() {
@@ -55,7 +57,7 @@ export default function AdminDashboard() {
       setLoading(false);
     }
 
-    fetchStats();
+    getStats();
   }, []);
 
   const statCards = [
