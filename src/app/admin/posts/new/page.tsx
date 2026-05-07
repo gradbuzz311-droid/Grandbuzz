@@ -151,21 +151,31 @@ export default function NewPostPage() {
         </div>
         
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-brand-midnight/60 hover:text-brand-midnight transition-all">
-            <Eye size={18} />
-            Preview
-          </button>
-          <button 
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex items-center gap-2 px-6 py-2 bg-brand-green text-brand-midnight text-sm font-bold rounded-xl shadow-sm hover:bg-brand-green/90 transition-all disabled:opacity-50"
-          >
-            {status === 'published' ? <Globe size={18} /> : status === 'pending' ? <Clock size={18} /> : <Save size={18} />}
-            {isSaving ? "Saving..." : 
-             status === 'published' ? "Publish" : 
-             status === 'pending' ? "Submit for Review" : 
-             "Save Draft"}
-          </button>
+          {userRole === 'admin' ? (
+            <>
+              <button className="flex items-center gap-2 px-4 py-2 text-sm font-bold text-brand-midnight/60 hover:text-brand-midnight transition-all">
+                <Eye size={18} />
+                Preview
+              </button>
+              <button 
+                onClick={() => { setStatus('published'); handleSave(); }}
+                disabled={isSaving}
+                className="flex items-center gap-2 px-6 py-2 bg-brand-green text-brand-midnight text-sm font-bold rounded-xl shadow-sm hover:bg-brand-green/90 transition-all disabled:opacity-50"
+              >
+                <Globe size={18} />
+                {isSaving ? "Publishing..." : "Publish Now"}
+              </button>
+            </>
+          ) : (
+            <button 
+              onClick={() => { setStatus('pending'); handleSave(); }}
+              disabled={isSaving}
+              className="flex items-center gap-2 px-6 py-2 bg-orange-500 text-white text-sm font-bold rounded-xl shadow-sm hover:bg-orange-600 transition-all disabled:opacity-50"
+            >
+              <Clock size={18} />
+              {isSaving ? "Submitting..." : "Submit for Review"}
+            </button>
+          )}
         </div>
       </header>
 
