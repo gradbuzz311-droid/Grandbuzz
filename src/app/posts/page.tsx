@@ -22,12 +22,13 @@ export default function PostsFeedPage() {
       const { data } = await supabase
         .from('posts')
         .select(`
-          *,
+          id, slug, title, thumbnail_url, created_at, likes,
           author:profiles(full_name, avatar_url, role),
           categories:post_categories(category:categories(name))
         `)
         .eq('status', 'published')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(20);
       
       setPosts(data || []);
       setLoading(false);
