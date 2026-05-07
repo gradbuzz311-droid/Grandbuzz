@@ -105,18 +105,18 @@ export default function ContributorsPage() {
     });
 
     try {
-      // 1. Upload Avatar if exists
+      // 1. Upload Avatar if exists using the AUTHENTICATED admin client
       let publicUrl = "";
       if (avatarFile) {
         const fileExt = avatarFile.name.split('.').pop();
         const fileName = `${Math.random()}.${fileExt}`;
-        const { error: uploadError } = await signupClient.storage
+        const { error: uploadError } = await supabase.storage
           .from('avatars')
           .upload(fileName, avatarFile);
 
         if (uploadError) throw new Error("Image upload failed: " + uploadError.message);
         
-        const { data: { publicUrl: url } } = signupClient.storage
+        const { data: { publicUrl: url } } = supabase.storage
           .from('avatars')
           .getPublicUrl(fileName);
         publicUrl = url;
