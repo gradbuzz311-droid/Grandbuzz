@@ -13,7 +13,16 @@ export default function PostsPage() {
 
   useEffect(() => {
     async function fetchPosts() {
-      const { data, error } = await supabase
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+
+      let query = supabase
         .from('posts')
         .select(`
           *,
@@ -21,8 +30,14 @@ export default function PostsPage() {
           categories:post_categories(
             category:categories(name)
           )
-        `)
-        .order('created_at', { ascending: false });
+        `);
+
+      // If contributor, only show their own posts
+      if (profile?.role === 'contributor') {
+        query = query.eq('author_id', user.id);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (data) setPosts(data);
       setLoading(false);

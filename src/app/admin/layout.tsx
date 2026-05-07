@@ -76,14 +76,14 @@ export default function AdminLayout({
   }
 
   const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
-    { name: "Posts", icon: FileText, path: "/admin/posts" },
-    { name: "Users", icon: Users, path: "/admin/contributors" },
-    { name: "Applications", icon: ClipboardList, path: "/admin/applications" },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
+    { name: "Posts", icon: FileText, path: "/admin/posts", roles: ["admin", "contributor"] },
+    { name: "Users", icon: Users, path: "/admin/contributors", roles: ["admin"] },
+    { name: "Applications", icon: ClipboardList, path: "/admin/applications", roles: ["admin"] },
   ];
 
-  // Force show all items for now to fix the empty sidebar
-  const filteredMenu = menuItems;
+  // Restoring proper filtering now that database is fixed
+  const filteredMenu = menuItems.filter(item => item.roles.includes(role || ''));
 
   return (
     <div className="min-h-screen bg-brand-cream flex">
@@ -91,7 +91,8 @@ export default function AdminLayout({
       <aside className="w-80 bg-white border-r border-brand-border flex flex-col sticky top-0 h-screen shadow-sm">
         <div className="p-8">
           <Link href="/" className="flex items-center gap-3 group">
-             <img src="/logo.png" alt="GradBuzz" className="h-10 w-auto" />
+             <div className="w-10 h-10 bg-brand-midnight rounded-xl flex items-center justify-center text-white font-black text-xl">G</div>
+             <span className="font-display text-2xl font-bold text-brand-midnight">GradBuzz</span>
           </Link>
         </div>
 
