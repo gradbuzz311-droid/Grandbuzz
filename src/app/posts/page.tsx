@@ -22,7 +22,7 @@ export default function PostsFeedPage() {
       const { data } = await supabase
         .from('posts')
         .select(`
-          id, slug, title, thumbnail_url, created_at, likes, author_id,
+          *,
           author:profiles(full_name, avatar_url, role),
           categories:post_categories(category:categories(name))
         `)

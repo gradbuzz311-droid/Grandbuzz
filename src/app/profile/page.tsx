@@ -49,7 +49,7 @@ function ProfileContent() {
         if (activeTab === "liked") {
           const { data: likedData } = await supabase
             .from('post_interactions')
-            .select('post:posts(id, slug, title, thumbnail_url, created_at, likes, author_id, author:profiles(full_name, avatar_url))')
+            .select('post:posts(*, author:profiles(full_name, avatar_url))')
             .eq('user_id', user.id)
             .eq('type', 'like')
             .limit(20);
@@ -57,7 +57,7 @@ function ProfileContent() {
         } else if (activeTab === "commented") {
           const { data: commentedData } = await supabase
             .from('post_comments')
-            .select('post:posts(id, slug, title, thumbnail_url, created_at, likes, author_id, author:profiles(full_name, avatar_url))')
+            .select('post:posts(*, author:profiles(full_name, avatar_url))')
             .eq('user_id', user.id)
             .limit(40);
           // Unique posts only
@@ -68,7 +68,7 @@ function ProfileContent() {
         } else if (activeTab === "bookmarks") {
           const { data: bookmarkData } = await supabase
             .from('post_bookmarks')
-            .select('post:posts(id, slug, title, thumbnail_url, created_at, likes, author_id, author:profiles(full_name, avatar_url))')
+            .select('post:posts(*, author:profiles(full_name, avatar_url))')
             .eq('user_id', user.id)
             .limit(20);
           data = bookmarkData?.map(item => item.post) || [];
