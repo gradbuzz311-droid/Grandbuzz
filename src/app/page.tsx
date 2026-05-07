@@ -4,46 +4,22 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
+import HeroSection from "@/components/home/HeroSection";
 import { 
   ArrowRight, 
-  TrendingUp, 
-  Users, 
-  BookOpen, 
-  Zap,
   Heart,
   Clock
 } from "lucide-react";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default function Home() {
-  const [featuredPost, setFeaturedPost] = useState<any>(null);
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
-  const [stats, setStats] = useState({
-    posts: 0,
-    contributors: 0,
-    readers: 0,
-    reach: 0
-  });
   const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
     async function fetchData() {
-      // 1. Fetch featured post
-      const { data: featured } = await supabase
-        .from('posts')
-        .select(`
-          id, title, slug, meta_description, thumbnail_url, created_at,
-          author:profiles(full_name, avatar_url, role),
-          categories:post_categories(category:categories(name))
-        `)
-        .eq('featured', true)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .single();
-
-      // 2. Fetch recent posts
+      // 1. Fetch recent posts
       const { data: recent } = await supabase
         .from('posts')
         .select(`
@@ -55,23 +31,6 @@ export default function Home() {
         .order('created_at', { ascending: false })
         .limit(6);
 
-      // 3. Fetch Real Stats
-      const [postsCount, contributorsCount, viewsSum] = await Promise.all([
-        supabase.from('posts').select('id', { count: 'exact', head: true }).eq('status', 'published'),
-        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'contributor'),
-        supabase.from('posts').select('view_count').eq('status', 'published')
-      ]);
-
-      const totalViews = viewsSum.data?.reduce((acc, p) => acc + (p.view_count || 0), 0) || 0;
-
-      setStats({
-        posts: postsCount.count || 0,
-        contributors: contributorsCount.count || 0,
-        readers: totalViews > 1000 ? Math.floor(totalViews/1000) : totalViews,
-        reach: (postsCount.count || 0) * 125 // Conservative reach estimation
-      });
-
-      setFeaturedPost(featured);
       setRecentPosts(recent || []);
       setLoading(false);
     }
@@ -92,64 +51,7 @@ export default function Home() {
       </nav>
 
       <main>
-        {/* Hero Section */}
-        <section className="px-6 pt-16 pb-24 max-w-7xl mx-auto">
-          {loading ? (
-             <div className="h-[70vh] rounded-[40px] bg-brand-cream animate-pulse" />
-          ) : featuredPost ? (
-            (() => {
-              const isAuthorAdmin = featuredPost.author?.role === 'admin';
-              const authorName = isAuthorAdmin ? "GradBuzz" : (featuredPost.author?.full_name || "GradBuzz Writer");
-              const authorAvatar = isAuthorAdmin ? "/logo_nobg.png" : getAvatarUrl(featuredPost.author?.avatar_url);
-
-              return (
-                <Link href={`/posts/${featuredPost.slug}`} className="group block relative rounded-[40px] overflow-hidden bg-brand-midnight h-[70vh] min-h-[500px]">
-                  <Image 
-                    src={getThumbnailUrl(featuredPost.thumbnail_url)} 
-                    alt={featuredPost.title}
-                    fill 
-                    className="object-cover opacity-60 group-hover:scale-105 transition-transform duration-1000"
-                    unoptimized={true}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight via-brand-midnight/20 to-transparent" />
-                  
-                  <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-16">
-                    <div className="max-w-3xl space-y-6">
-                      <div className="flex gap-2">
-                        {featuredPost.categories?.map((c: any) => (
-                          <span key={c.category.name} className="px-4 py-1.5 bg-brand-green text-brand-midnight text-[10px] font-black uppercase tracking-widest rounded-lg">
-                            {c.category.name}
-                          </span>
-                        ))}
-                      </div>
-                      <h1 className="font-display text-4xl md:text-7xl font-black text-white leading-[0.95] tracking-tight">
-                        {featuredPost.title}
-                      </h1>
-                      <p className="text-white/60 text-lg md:text-xl font-medium line-clamp-2 max-w-2xl leading-relaxed">
-                        {featuredPost.meta_description}
-                      </p>
-                      <div className="flex items-center gap-4 pt-4">
-                        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50 bg-white">
-                          <Image 
-                            src={authorAvatar} 
-                            alt={authorName} 
-                            fill 
-                            className="object-cover" 
-                            unoptimized={true}
-                          />
-                        </div>
-                        <div>
-                          <p className="text-white font-black text-sm">{authorName}</p>
-                          <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Featured Insight</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              );
-            })()
-          ) : null}
-        </section>
+        <HeroSection />
 
         {/* Recent Feed */}
         <section className="max-w-7xl mx-auto px-6 py-24">
