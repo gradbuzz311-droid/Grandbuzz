@@ -1,10 +1,15 @@
 "use client";
 
+/**
+ * Contributor Portal Layout
+ * Manages authentication and shared management navigation.
+ */
+
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, usePathname } from "next/navigation";
-import Sidebar from "@/components/admin/Sidebar";
-import Header from "@/components/admin/Header";
+import Sidebar from "../../components/admin/Sidebar";
+import Header from "../../components/admin/Header";
 
 export default function ContributorLayout({
   children,
@@ -12,6 +17,7 @@ export default function ContributorLayout({
   children: React.ReactNode;
 }) {
   const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
   const router = useRouter();
   const supabase = createClient();
   const pathname = usePathname();
@@ -35,6 +41,7 @@ export default function ContributorLayout({
         return;
       }
 
+      setRole(profile.role);
       setLoading(false);
     }
     checkAuth();
@@ -51,7 +58,7 @@ export default function ContributorLayout({
   return (
     <div className="min-h-screen bg-[#FDFCF8] flex">
       {/* Contributor Specific Sidebar (Can be customized later) */}
-      <Sidebar />
+      <Sidebar role={role} />
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <Header />
         <main className="flex-1 overflow-y-auto p-8 bg-brand-cream/20">

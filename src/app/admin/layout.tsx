@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { usePathname, useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import Sidebar from "@/components/admin/Sidebar";
-import Header from "@/components/admin/Header";
+import Sidebar from "../../components/admin/Sidebar";
+import Header from "../../components/admin/Header";
 
 export default function AdminLayout({
   children,

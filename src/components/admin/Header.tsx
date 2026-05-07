@@ -1,5 +1,10 @@
 "use client";
 
+/**
+ * Premium Admin/Contributor Header
+ * Handles real-time profile data and role badging.
+ */
+
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { Bell, Search, User } from "lucide-react";
