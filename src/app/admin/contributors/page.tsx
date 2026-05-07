@@ -58,17 +58,14 @@ export default function ContributorsPage() {
     const supabase = createClient();
     setLoading(true);
     
-    // Explicitly listing columns to debug if one is missing
+    // REMOVED FILTERS: Show everyone to see why they aren't appearing as contributors
     const { data, error } = await supabase
       .from('profiles')
       .select('id, full_name, avatar_url, role, role_description, bio, updated_at')
-      .neq('role', 'admin')
-      .neq('role', 'reader')
-      .order('full_name');
+      .order('role', { ascending: true });
 
     if (error) {
       console.error("Fetch error:", error);
-      // If columns are missing, this will help identify which one
     }
 
     if (data) setContributors(data as any);
