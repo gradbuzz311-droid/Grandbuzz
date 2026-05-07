@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import PostInteractions from "@/components/blog/PostInteractions";
+import ShareButton from "@/components/blog/ShareButton";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -103,22 +104,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             </div>
 
             <div className="ml-auto">
-              <button 
-                onClick={() => {
-                  if (navigator.share) {
-                    navigator.share({
-                      title: post.title,
-                      url: window.location.href,
-                    });
-                  } else {
-                    navigator.clipboard.writeText(window.location.href);
-                    alert("Link copied to clipboard!");
-                  }
-                }}
-                className="flex items-center gap-2 px-6 py-3 bg-brand-midnight text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-midnight/10"
-              >
-                Share Story
-              </button>
+              <ShareButton title={post.title} />
             </div>
           </div>
         </header>
