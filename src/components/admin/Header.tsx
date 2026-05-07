@@ -66,6 +66,7 @@ export default function Header() {
                 alt="Profile" 
                 fill 
                 className="object-cover" 
+                unoptimized={profile?.avatar_url?.startsWith('data:')}
              />
           </div>
         </div>

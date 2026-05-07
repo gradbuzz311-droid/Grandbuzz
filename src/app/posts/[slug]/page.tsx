@@ -47,6 +47,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           fill
           className="object-cover opacity-70"
           priority
+          unoptimized={post.thumbnail_url?.startsWith('data:')}
         />
         
         <div className="absolute inset-0 bg-gradient-to-t from-brand-midnight via-brand-midnight/20 to-transparent" />
@@ -72,7 +73,13 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             <div className="flex items-center justify-center gap-6 text-white/80">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-brand-green relative shadow-xl shadow-brand-midnight/50">
-                   <Image src={getAvatarUrl(post.author?.avatar_url)} alt={post.author?.full_name || "Author"} fill className="object-cover" />
+                   <Image 
+                    src={getAvatarUrl(post.author?.avatar_url)} 
+                    alt={post.author?.full_name || "Author"} 
+                    fill 
+                    className="object-cover" 
+                    unoptimized={post.author?.avatar_url?.startsWith('data:')}
+                   />
                 </div>
                 <div className="text-left">
                   <p className="text-sm font-black text-white leading-none mb-1">{post.author?.full_name || 'GradBuzz Editor'}</p>
@@ -110,14 +117,15 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         
         <footer className="mt-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-10">
           <div className="flex items-center gap-6">
-             <div className="w-16 h-16 relative bg-white rounded-2xl border border-brand-border p-3 shadow-sm">
-                <Image src="/gradbuzz.png" alt="GradBuzz Logo" fill className="object-contain p-2" />
+             <div className="w-20 h-20 relative">
+                <Image src="/logo_nobg.png" alt="GradBuzz Logo" fill className="object-contain" />
              </div>
              <div>
-                <p className="text-xs font-black text-brand-midnight uppercase tracking-[0.2em] mb-1">Published By</p>
-                <p className="text-lg font-display font-black text-brand-midnight">GradBuzz Editorial Team</p>
-                <p className="text-sm font-medium text-brand-midnight/40 leading-relaxed">
-                  Initiative by Sikshanext Private Limited. © 2026 All Rights Reserved.
+                <p className="text-[10px] font-black text-brand-midnight/30 uppercase tracking-[0.2em] mb-1">
+                   Initiative by Sikshanext Private Limited.
+                </p>
+                <p className="text-[10px] font-bold text-brand-midnight/20 uppercase tracking-[0.1em]">
+                   © 2026 All Rights Reserved.
                 </p>
              </div>
           </div>

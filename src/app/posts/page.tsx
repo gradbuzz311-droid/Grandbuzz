@@ -80,6 +80,7 @@ export default function PostsFeedPage() {
                   alt={post.title} 
                   fill 
                   className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                  unoptimized={post.thumbnail_url?.startsWith('data:')}
                 />
                 <div className="absolute top-4 left-4">
                   {post.categories?.[0] && (
@@ -98,7 +99,13 @@ export default function PostsFeedPage() {
                 <div className="mt-auto flex items-center justify-between pt-6 border-t border-brand-border/50">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full overflow-hidden relative border border-brand-border">
-                      <Image src={getAvatarUrl(post.author?.avatar_url)} alt="Author" fill className="object-cover" />
+                      <Image 
+                        src={getAvatarUrl(post.author?.avatar_url)} 
+                        alt="Author" 
+                        fill 
+                        className="object-cover" 
+                        unoptimized={post.author?.avatar_url?.startsWith('data:')}
+                      />
                     </div>
                     <span className="text-[10px] font-bold text-brand-midnight/60">{post.author?.full_name || "GradBuzz Writer"}</span>
                   </div>
