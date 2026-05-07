@@ -5,6 +5,7 @@ import Link from "next/link";
 import PostInteractions from "@/components/blog/PostInteractions";
 import ShareButton from "@/components/blog/ShareButton";
 import Navbar from "@/components/Navbar";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -34,8 +35,45 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
   const authorName = isAuthorAdmin ? "GradBuzz" : (post.author?.full_name || 'GradBuzz Editor');
   const authorAvatar = isAuthorAdmin ? "/logo_nobg.png" : getAvatarUrl(post.author?.avatar_url);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: post.title,
+    image: getThumbnailUrl(post.thumbnail_url),
+    datePublished: post.created_at,
+    dateModified: post.updated_at || post.created_at,
+    author: {
+      '@type': 'Person',
+      name: authorName,
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'GradBuzz',
+      logo: {
+        '@type': 'ImageObject',
+        url: 'https://gradbuzz.sikshanext.in/logo_nobg.png',
+      },
+    },
+  };
+
+  const { data: readNextPosts } = await supabase
+    .from('posts')
+    .select(`
+      id, slug, title, thumbnail_url, created_at,
+      author:profiles(full_name, avatar_url, role),
+      categories:post_categories(category:categories(name))
+    `)
+    .eq('status', 'published')
+    .neq('id', post.id)
+    .order('created_at', { ascending: false })
+    .limit(3);
+
   return (
     <article className="min-h-screen bg-brand-cream/30 selection:bg-brand-green/30">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Navbar />
 
       {/* Hero Image Container with Gap */}
@@ -138,6 +176,37 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
           </div>
         </footer>
       </main>
+
+      {/* Read Next Section */}
+      {readNextPosts && readNextPosts.length > 0 && (
+        <section className="bg-white py-20 border-t border-brand-border/30">
+          <div className="max-w-7xl mx-auto px-6">
+            <h2 className="text-2xl md:text-3xl font-bold text-brand-midnight mb-10">Read Next</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {readNextPosts.map((related: any) => (
+                <Link key={related.id} href={`/posts/${related.slug}`} className="group block">
+                  <div className="relative aspect-[16/10] bg-brand-midnight rounded-xl overflow-hidden mb-4">
+                    <Image
+                      src={getThumbnailUrl(related.thumbnail_url)}
+                      alt={related.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </div>
+                  <h3 className="font-bold text-brand-midnight text-lg leading-snug group-hover:text-brand-green transition-colors">
+                    {related.title}
+                  </h3>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Newsletter Section */}
+      <div className="px-6 pb-20">
+        <NewsletterSubscribe />
+      </div>
     </article>
   );
 }

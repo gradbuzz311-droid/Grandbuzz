@@ -17,6 +17,7 @@ import {
   Plus,
   Clock
 } from "lucide-react";
+import { compressImage } from "@/utils/helpers";
 
 export default function NewPostPage() {
   const supabase = createClient();
@@ -48,6 +49,27 @@ export default function NewPostPage() {
     fetchUserRole();
   }, [supabase]);
 
+  // Auto-save drafts
+  const DRAFT_KEY = 'gradbuzz_draft_new';
+  
+  useEffect(() => {
+    const savedDraft = localStorage.getItem(DRAFT_KEY);
+    if (savedDraft) {
+      try {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed.title) setTitle(parsed.title);
+        if (parsed.content) setContent(parsed.content);
+      } catch (e) {}
+    }
+  }, []);
+
+  useEffect(() => {
+    if (title || content) {
+      const draft = { title, content };
+      localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    }
+  }, [title, content]);
+
   // Fetch categories
   useEffect(() => {
     async function fetchCategories() {
@@ -65,15 +87,20 @@ export default function NewPostPage() {
     }
   }, [title, slug]);
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setThumbnailFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setThumbnail(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedFile = await compressImage(file);
+        setThumbnailFile(compressedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setThumbnail(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (err) {
+        console.error("Compression error:", err);
+      }
     }
   };
 
@@ -143,6 +170,7 @@ export default function NewPostPage() {
       }
 
       alert("Post saved successfully!");
+      localStorage.removeItem(DRAFT_KEY);
       router.push("/admin/posts");
     } catch (error: any) {
       alert("Error: " + error.message);

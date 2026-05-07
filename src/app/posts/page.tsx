@@ -10,49 +10,68 @@ import {
   Filter
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
+import NewsletterSubscribe from "@/components/NewsletterSubscribe";
 import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
 
 export default function PostsFeedPage() {
   const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const pageSize = 20;
   const supabase = createClient();
 
-  useEffect(() => {
-    async function fetchPosts() {
-      const { data } = await supabase
-        .from('posts')
-        .select(`
-          *,
-          author:profiles(full_name, avatar_url, role),
-          categories:post_categories(category:categories(name))
-        `)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .limit(20);
-      if (data && data.length > 0) {
-        const postIds = data.map((p: any) => p.id);
-        const { data: interactions } = await supabase
-          .from('post_interactions')
-          .select('post_id')
-          .in('post_id', postIds)
-          .eq('type', 'like');
+  const loadPosts = async (currentPage: number, isInitial = false) => {
+    if (!isInitial) setLoadingMore(true);
+    
+    const { data } = await supabase
+      .from('posts')
+      .select(`
+        *,
+        author:profiles(full_name, avatar_url, role),
+        categories:post_categories(category:categories(name))
+      `)
+      .eq('status', 'published')
+      .order('created_at', { ascending: false })
+      .range(currentPage * pageSize, (currentPage + 1) * pageSize - 1);
+      
+    if (data && data.length > 0) {
+      const postIds = data.map((p: any) => p.id);
+      const { data: interactions } = await supabase
+        .from('post_interactions')
+        .select('post_id')
+        .in('post_id', postIds)
+        .eq('type', 'like');
 
-        const counts = interactions?.reduce((acc: any, curr: any) => {
-          acc[curr.post_id] = (acc[curr.post_id] || 0) + 1;
-          return acc;
-        }, {}) || {};
+      const counts = interactions?.reduce((acc: any, curr: any) => {
+        acc[curr.post_id] = (acc[curr.post_id] || 0) + 1;
+        return acc;
+      }, {}) || {};
 
-        const postsWithLikes = data.map((p: any) => ({
-          ...p,
-          actualLikes: counts[p.id] || 0
-        }));
+      const postsWithLikes = data.map((p: any) => ({
+        ...p,
+        actualLikes: counts[p.id] || 0
+      }));
+      
+      if (isInitial) {
         setPosts(postsWithLikes);
       } else {
-        setPosts([]);
+        setPosts(prev => [...prev, ...postsWithLikes]);
       }
-      setLoading(false);
+      
+      if (data.length < pageSize) setHasMore(false);
+    } else {
+      if (isInitial) setPosts([]);
+      setHasMore(false);
     }
-    fetchPosts();
+    
+    if (isInitial) setLoading(false);
+    setLoadingMore(false);
+  };
+
+  useEffect(() => {
+    loadPosts(0, true);
   }, [supabase]);
 
   return (
@@ -144,7 +163,28 @@ export default function PostsFeedPage() {
             })
           )}
         </div>
+
+        {/* Load More Button */}
+        {!loading && hasMore && posts.length > 0 && (
+          <div className="mt-16 flex justify-center">
+            <button
+              onClick={() => {
+                const nextPage = page + 1;
+                setPage(nextPage);
+                loadPosts(nextPage);
+              }}
+              disabled={loadingMore}
+              className="px-8 py-3 rounded-full bg-white border border-brand-border text-brand-midnight font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50 flex items-center gap-2"
+            >
+              {loadingMore ? 'Loading...' : 'Load More Posts'}
+            </button>
+          </div>
+        )}
       </main>
+
+      <div className="px-6 pb-20">
+        <NewsletterSubscribe />
+      </div>
 
       {/* Simplified Footer for Feed */}
       <footer className="py-20 px-6 border-t border-brand-border bg-white text-center">

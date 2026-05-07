@@ -18,6 +18,7 @@ import {
   Plus,
   Clock
 } from "lucide-react";
+import { compressImage } from "@/utils/helpers";
 
 export default function EditPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -65,6 +66,17 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         if (post.categories) {
           setSelectedCategories(post.categories.map((c: any) => c.category_id));
         }
+
+        const savedDraft = localStorage.getItem(`gradbuzz_draft_edit_${id}`);
+        if (savedDraft) {
+          try {
+            const parsed = JSON.parse(savedDraft);
+            if (window.confirm("You have an unsaved draft for this post. Would you like to restore it?")) {
+               setTitle(parsed.title || post.title);
+               setContent(parsed.content || post.content);
+            }
+          } catch(e) {}
+        }
       } else {
         alert("Post not found");
         router.push("/admin/posts");
@@ -81,15 +93,26 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     fetchData();
   }, [supabase, id, router]);
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (!isLoading && (title || content)) {
+      localStorage.setItem(`gradbuzz_draft_edit_${id}`, JSON.stringify({ title, content }));
+    }
+  }, [title, content, isLoading, id]);
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      setThumbnailFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setThumbnail(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      try {
+        const compressedFile = await compressImage(file);
+        setThumbnailFile(compressedFile);
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setThumbnail(reader.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      } catch (err) {
+        console.error("Compression error:", err);
+      }
     }
   };
 
@@ -156,6 +179,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         await supabase.from('post_categories').insert(categoryLinks);
       }
       alert("Post updated successfully!");
+      localStorage.removeItem(`gradbuzz_draft_edit_${id}`);
     } catch (error: any) {
       alert("Error: " + error.message);
     } finally {
