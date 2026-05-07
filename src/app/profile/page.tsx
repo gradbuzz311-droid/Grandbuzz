@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +9,7 @@ import Navbar from "@/components/Navbar";
 import { Heart, MessageSquare, Bookmark, User as UserIcon, Clock } from "lucide-react";
 import { getThumbnailUrl } from "@/utils/helpers";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("liked");
@@ -176,5 +176,17 @@ export default function ProfilePage() {
         <p className="text-[12px] text-brand-midnight/25">© 2026 GradBuzz. Initiative by Sikshanext Private Limited.</p>
       </footer>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-brand-cream flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-brand-green border-t-transparent rounded-full animate-spin" />
+      </div>
+    }>
+      <ProfileContent />
+    </Suspense>
   );
 }
