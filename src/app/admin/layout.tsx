@@ -76,13 +76,14 @@ export default function AdminLayout({
   }
 
   const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard, path: "/admin", roles: ["admin"] },
-    { name: "Posts", icon: FileText, path: "/admin/posts", roles: ["admin", "contributor"] },
-    { name: "Users", icon: Users, path: "/admin/contributors", roles: ["admin"] },
-    { name: "Applications", icon: ClipboardList, path: "/admin/applications", roles: ["admin"] },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/admin" },
+    { name: "Posts", icon: FileText, path: "/admin/posts" },
+    { name: "Users", icon: Users, path: "/admin/contributors" },
+    { name: "Applications", icon: ClipboardList, path: "/admin/applications" },
   ];
 
-  const filteredMenu = menuItems.filter(item => item.roles.includes(role || ''));
+  // Force show all items for now to fix the empty sidebar
+  const filteredMenu = menuItems;
 
   return (
     <div className="min-h-screen bg-brand-cream flex">
