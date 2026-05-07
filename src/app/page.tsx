@@ -4,62 +4,279 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Image from "next/image";
 import Link from "next/link";
-import Navbar from "@/components/home/Navbar";
-import HeroSection from "@/components/home/HeroSection";
-import WhySection from "@/components/home/WhySection";
-import WhoWritesSection from "@/components/home/WhoWritesSection";
-import BentoInsights from "@/components/home/BentoInsights";
-import JourneySection from "@/components/home/JourneySection";
-import ContributorCTA from "@/components/home/ContributorCTA";
-import Footer from "@/components/home/Footer";
-import { getAvatarUrl, getThumbnailUrl } from "@/utils/helpers";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowRight, Menu, X, Briefcase, Search, FileText, Coffee, Terminal, GraduationCap, Code2, BookOpen, Trophy, UserCheck, Clock, Bookmark, Target, Code, AlertCircle } from "lucide-react";
+import { getThumbnailUrl } from "@/utils/helpers";
 
 export default function Home() {
-  const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [posts, setPosts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const supabase = createClient();
 
   useEffect(() => {
-    async function fetchData() {
-      // 1. Fetch recent posts for Bento Grid (need 5 posts)
-      const { data: recent } = await supabase
-        .from('posts')
-        .select(`
-          id, title, slug, thumbnail_url, meta_description, created_at,
-          author:profiles(full_name, avatar_url, role),
-          categories:post_categories(category:categories(name))
-        `)
-        .eq('status', 'published')
-        .order('created_at', { ascending: false })
-        .limit(5);
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
-      setRecentPosts(recent || []);
+  useEffect(() => {
+    async function load() {
+      const { data } = await supabase
+        .from("posts")
+        .select(`id, title, slug, thumbnail_url, meta_description, created_at, categories:post_categories(category:categories(name))`)
+        .eq("status", "published")
+        .order("created_at", { ascending: false })
+        .limit(4);
+      setPosts(data || []);
       setLoading(false);
     }
-    fetchData();
+    load();
   }, [supabase]);
 
+  const fade = { initial: { opacity: 0, y: 24 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } };
+
   return (
-    <div className="min-h-screen bg-brand-cream selection:bg-brand-green/30 overflow-x-hidden">
-      <Navbar />
+    <div className="min-h-screen bg-brand-cream text-brand-midnight font-sans overflow-x-hidden">
 
-      <main>
-        <HeroSection />
-        
-        <WhySection />
-        
-        <WhoWritesSection />
-        
-        {!loading && recentPosts.length > 0 && (
-          <BentoInsights posts={recentPosts} />
+      {/* ── NAVBAR ── */}
+      <nav className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${scrolled ? "bg-brand-cream/90 backdrop-blur-lg border-b border-brand-border" : "bg-transparent"}`}>
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+          <Link href="/" className="relative h-8 w-32"><Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" priority /></Link>
+          <div className="hidden md:flex items-center gap-8">
+            {["Insights", "Contributors", "About"].map(l => (
+              <Link key={l} href={l === "Insights" ? "/posts" : "#"} className="text-[13px] font-medium text-brand-midnight/50 hover:text-brand-midnight transition-colors">{l}</Link>
+            ))}
+            <Link href="/posts" className="text-[13px] font-semibold text-white bg-brand-midnight px-5 py-2.5 rounded-lg hover:opacity-90 transition-opacity">Explore Insights</Link>
+          </div>
+          <button className="md:hidden" onClick={() => setMenuOpen(true)}><Menu size={22} /></button>
+        </div>
+      </nav>
+
+      {/* Mobile drawer */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div initial={{ x: "100%" }} animate={{ x: 0 }} exit={{ x: "100%" }} transition={{ type: "spring", damping: 30, stiffness: 300 }} className="fixed inset-0 z-[60] bg-brand-cream p-8 flex flex-col">
+            <div className="flex justify-between items-center mb-16">
+              <Link href="/" onClick={() => setMenuOpen(false)} className="relative h-8 w-32"><Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" /></Link>
+              <button onClick={() => setMenuOpen(false)}><X size={24} /></button>
+            </div>
+            <div className="flex flex-col gap-6">
+              {["Insights", "Contributors", "About"].map(l => (
+                <Link key={l} href={l === "Insights" ? "/posts" : "#"} onClick={() => setMenuOpen(false)} className="text-3xl font-display font-bold text-brand-midnight">{l}</Link>
+              ))}
+              <Link href="/posts" onClick={() => setMenuOpen(false)} className="mt-6 text-center text-sm font-semibold text-white bg-brand-midnight py-4 rounded-xl">Explore Insights</Link>
+            </div>
+          </motion.div>
         )}
-        
-        <JourneySection />
-        
-        <ContributorCTA />
-      </main>
+      </AnimatePresence>
 
-      <Footer />
+      {/* ── HERO ── */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-center">
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }} className="space-y-8">
+            <p className="text-[13px] font-semibold text-brand-green tracking-wide uppercase">Curated student insights</p>
+            <h1 className="font-display text-[44px] md:text-[64px] font-bold text-brand-midnight leading-[1.05] tracking-tight">
+              Real insights for<br />students building<br />their future.
+            </h1>
+            <p className="text-brand-midnight/50 text-lg leading-relaxed max-w-md">
+              Practical advice from engineers, professors, recruiters, and students who&apos;ve been through it.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link href="/posts" className="inline-flex items-center gap-2 px-7 py-3.5 bg-brand-midnight text-white rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity">
+                Explore Insights <ArrowRight size={16} />
+              </Link>
+              <Link href="#contributor-cta" className="px-7 py-3.5 border border-brand-border text-brand-midnight rounded-xl text-sm font-semibold hover:bg-white transition-colors">
+                Become a Contributor
+              </Link>
+            </div>
+          </motion.div>
+
+          {/* Floating cards */}
+          <div className="relative h-[420px] hidden lg:block">
+            {[
+              { t: "How I cracked my first internship", c: "Internships", icon: Target, x: "left-0 top-0", d: 0, r: -2 },
+              { t: "What recruiters actually look for", c: "Placements", icon: Search, x: "right-0 top-8", d: 0.8, r: 2 },
+              { t: "Building projects that stand out", c: "Projects", icon: Code, x: "left-12 bottom-0", d: 1.2, r: 1 },
+              { t: "Things students should learn earlier", c: "Career", icon: AlertCircle, x: "right-4 bottom-8", d: 1.6, r: -1 },
+            ].map((card, i) => (
+              <motion.div key={i} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: [0, -10, 0] }}
+                transition={{ opacity: { duration: 0.6, delay: card.d }, y: { duration: 5 + i, repeat: Infinity, ease: "easeInOut", delay: card.d } }}
+                className={`absolute ${card.x} bg-white rounded-2xl p-5 border border-brand-border w-56 shadow-sm`}
+                style={{ transform: `rotate(${card.r}deg)` }}>
+                <p className="text-[10px] font-semibold text-brand-green uppercase tracking-wider mb-1">{card.c}</p>
+                <p className="text-[14px] font-semibold text-brand-midnight leading-snug">{card.t}</p>
+                <div className="flex items-center gap-1.5 mt-3 pt-3 border-t border-brand-border/50">
+                  <div className="w-4 h-4 rounded-full bg-brand-cream border border-brand-border" />
+                  <div className="w-12 h-1.5 bg-brand-cream rounded-full" />
+                  <Bookmark size={10} className="ml-auto text-brand-midnight/15" />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Mobile single card */}
+          <div className="lg:hidden bg-white rounded-2xl p-5 border border-brand-border">
+            <p className="text-[10px] font-semibold text-brand-green uppercase tracking-wider mb-1">Internships</p>
+            <p className="text-[14px] font-semibold text-brand-midnight leading-snug">How I cracked my first internship</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHY SECTION ── */}
+      <section className="py-24 px-6 bg-white border-y border-brand-border">
+        <div className="max-w-6xl mx-auto grid lg:grid-cols-2 gap-16 items-start">
+          <motion.div {...fade} className="space-y-6">
+            <h2 className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight">
+              Most student advice is either outdated or generic.
+            </h2>
+            <p className="text-brand-midnight/50 text-[17px] leading-relaxed max-w-md">
+              GradBuzz is built to surface practical knowledge from people with real experience — not recycled tips from the internet.
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {[
+              { n: "Placements", i: Briefcase }, { n: "Internships", i: Search }, { n: "Resume Reviews", i: FileText },
+              { n: "Campus Life", i: Coffee }, { n: "Coding Interviews", i: Terminal }, { n: "Higher Studies", i: GraduationCap },
+            ].map(({ n, i: Icon }) => (
+              <div key={n} className="bg-brand-cream/60 rounded-xl p-5 border border-brand-border/50 hover:border-brand-green/30 transition-colors group">
+                <Icon size={20} className="text-brand-midnight/30 mb-3 group-hover:text-brand-green transition-colors" />
+                <p className="text-[13px] font-semibold text-brand-midnight">{n}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── WHO WRITES ── */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-center">
+            Built on real experiences.
+          </motion.h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { t: "Software Engineers", d: "Interview prep, projects, and career lessons.", i: Code2 },
+              { t: "Professors", d: "Academic guidance and long-term growth.", i: BookOpen },
+              { t: "Placed Students", d: "What actually worked during placements.", i: Trophy },
+              { t: "Recruiters", d: "Hiring expectations and how to stand out.", i: UserCheck },
+            ].map(({ t, d, i: Icon }) => (
+              <motion.div key={t} {...fade} className="bg-white rounded-2xl p-6 border border-brand-border hover:border-brand-green/30 transition-colors">
+                <Icon size={24} className="text-brand-midnight/25 mb-4" />
+                <h3 className="text-[15px] font-bold text-brand-midnight mb-2">{t}</h3>
+                <p className="text-[14px] text-brand-midnight/45 leading-relaxed">{d}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── FEATURED INSIGHTS ── */}
+      {!loading && posts.length > 0 && (
+        <section className="py-24 px-6 bg-white border-y border-brand-border">
+          <div className="max-w-6xl mx-auto space-y-12">
+            <div className="flex items-end justify-between">
+              <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight">Featured Insights</motion.h2>
+              <Link href="/posts" className="text-[13px] font-medium text-brand-midnight/40 hover:text-brand-midnight transition-colors hidden sm:block">View all →</Link>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {posts.slice(0, 4).map((post) => (
+                <Link key={post.id} href={`/posts/${post.slug}`} className="group bg-brand-cream/40 rounded-2xl border border-brand-border p-4 hover:border-brand-green/30 transition-colors">
+                  <div className="relative aspect-[16/9] rounded-xl overflow-hidden mb-4">
+                    <Image src={getThumbnailUrl(post.thumbnail_url)} alt={post.title} fill className="object-cover group-hover:scale-[1.03] transition-transform duration-500" unoptimized />
+                    {post.categories?.[0] && (
+                      <span className="absolute top-3 left-3 bg-white/90 text-[10px] font-semibold uppercase tracking-wider text-brand-midnight px-2.5 py-1 rounded-md">
+                        {post.categories[0].category.name}
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-[17px] font-bold text-brand-midnight leading-snug mb-2 group-hover:text-brand-green transition-colors">{post.title}</h3>
+                  <div className="flex items-center gap-2 text-brand-midnight/30">
+                    <Clock size={13} />
+                    <span className="text-[12px] font-medium">5 min read</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ── JOURNEY ── */}
+      <section className="py-24 px-6">
+        <div className="max-w-6xl mx-auto space-y-16">
+          <motion.h2 {...fade} className="font-display text-[36px] md:text-[48px] font-bold leading-[1.1] tracking-tight text-center">
+            Every journey looks different.
+          </motion.h2>
+          {/* Desktop */}
+          <div className="hidden md:block relative">
+            <div className="absolute top-6 left-0 right-0 h-px bg-brand-border" />
+            <div className="flex justify-between relative">
+              {["College", "Skills", "Projects", "Internships", "Placements", "Career"].map((s, i) => (
+                <motion.div key={s} {...fade} transition={{ delay: i * 0.08 }} className="flex flex-col items-center group cursor-default">
+                  <div className="w-12 h-12 rounded-full bg-brand-cream border-2 border-brand-border flex items-center justify-center mb-4 group-hover:border-brand-green transition-colors">
+                    <div className="w-3 h-3 rounded-full bg-brand-border group-hover:bg-brand-green transition-colors" />
+                  </div>
+                  <p className="text-[13px] font-semibold text-brand-midnight">{s}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-8 relative pl-8">
+            <div className="absolute top-0 bottom-0 left-[14px] w-px bg-brand-border" />
+            {["College", "Skills", "Projects", "Internships", "Placements", "Career"].map((s) => (
+              <div key={s} className="flex items-center gap-4 relative">
+                <div className="w-7 h-7 rounded-full bg-brand-cream border-2 border-brand-border flex items-center justify-center shrink-0 -ml-8">
+                  <div className="w-2 h-2 rounded-full bg-brand-green" />
+                </div>
+                <p className="text-[15px] font-semibold text-brand-midnight">{s}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CONTRIBUTOR CTA ── */}
+      <section id="contributor-cta" className="py-28 px-6 bg-brand-midnight">
+        <motion.div {...fade} className="max-w-2xl mx-auto text-center space-y-8">
+          <h2 className="font-display text-[36px] md:text-[52px] font-bold text-white leading-[1.1] tracking-tight">
+            Want to share something useful?
+          </h2>
+          <p className="text-white/40 text-[17px] leading-relaxed">
+            We&apos;re inviting professionals, professors, and experienced students to contribute insights that genuinely help others grow.
+          </p>
+          <Link href="#" className="inline-flex items-center gap-2 px-8 py-4 bg-brand-green text-brand-midnight rounded-xl text-sm font-bold hover:opacity-90 transition-opacity">
+            Apply as Contributor <ArrowRight size={16} />
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="bg-white border-t border-brand-border py-16 px-6">
+        <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-12">
+          <div className="md:col-span-2 space-y-4">
+            <Link href="/" className="relative h-8 w-32 block"><Image src="/gradbuzz.png" alt="GradBuzz" fill className="object-contain object-left" /></Link>
+            <p className="text-brand-midnight/40 text-[14px] leading-relaxed max-w-sm">Where student ambition meets real advice. An initiative by Sikshanext Private Limited.</p>
+          </div>
+          <div className="space-y-4">
+            <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Platform</p>
+            <div className="flex flex-col gap-2.5">
+              {["Insights", "Contributors", "Mission"].map(l => <Link key={l} href={l === "Insights" ? "/posts" : "#"} className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">{l}</Link>)}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <p className="text-[12px] font-bold text-brand-midnight/30 uppercase tracking-wider">Legal</p>
+            <div className="flex flex-col gap-2.5">
+              {["Terms", "Privacy", "Cookies"].map(l => <Link key={l} href="#" className="text-[14px] text-brand-midnight/45 hover:text-brand-midnight transition-colors">{l}</Link>)}
+            </div>
+          </div>
+        </div>
+        <div className="max-w-6xl mx-auto mt-12 pt-8 border-t border-brand-border">
+          <p className="text-[12px] text-brand-midnight/20">© 2026 GradBuzz. All rights reserved.</p>
+        </div>
+      </footer>
     </div>
   );
 }

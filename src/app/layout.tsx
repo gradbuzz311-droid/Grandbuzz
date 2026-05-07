@@ -1,29 +1,22 @@
 import type { Metadata } from "next";
-import { Syne, DM_Sans, Fraunces } from "next/font/google";
+import { Syne, DM_Sans } from "next/font/google";
 import "./globals.css";
 
 const syne = Syne({
   variable: "--font-syne",
   subsets: ["latin"],
-  weight: ["700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
   subsets: ["latin"],
-  weight: ["400", "500"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
-  style: ["italic"],
-  weight: ["300"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
-  title: "GradBuzz | Student Advice & Jobs",
-  description: "Where student ambition meets real advice.",
+  title: "GradBuzz — Real Insights for Students",
+  description: "Curated knowledge. Practical advice. Career clarity.",
 };
 
 export default function RootLayout({
@@ -34,9 +27,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${syne.variable} ${dmSans.variable} ${fraunces.variable} antialiased`}
+      className={`${syne.variable} ${dmSans.variable} antialiased`}
     >
-      <body className={`min-h-screen bg-brand-cream text-brand-midnight font-sans`}>{children}</body>
+      <body className="min-h-screen bg-brand-cream text-brand-midnight font-sans">{children}</body>
     </html>
   );
 }

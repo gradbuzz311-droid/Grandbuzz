@@ -9,7 +9,6 @@
 
   --font-sans: var(--font-dm-sans);
   --font-display: var(--font-syne);
-  --font-accent: var(--font-fraunces);
 }
 
 body {
@@ -68,7 +67,7 @@ body {
 }
 
 .prose li p {
-  @apply mb-1; /* Reduce paragraph margin inside lists */
+  @apply mb-1;
 }
 
 .prose code {
@@ -94,8 +93,6 @@ body {
   @apply text-brand-green underline decoration-brand-green/30 hover:decoration-brand-green transition-all font-medium;
 }
 
-/* Custom Selection Color */
 ::selection {
   @apply bg-brand-green/30 text-brand-midnight;
 }
-
