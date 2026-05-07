@@ -74,7 +74,7 @@ export default function PostInteractions({
       .eq('post_id', postId)
       .eq('user_id', user.id)
       .eq('type', 'like')
-      .single();
+      .maybeSingle();
 
     if (likeData) setHasLiked(true);
 
@@ -129,9 +129,9 @@ export default function PostInteractions({
     setIsInteracting(true);
 
     const isCurrentlyLiked = hasLiked;
-    // Optimistic UI update
+    // Optimistic UI update (ensuring it never goes below 0)
     setHasLiked(!isCurrentlyLiked);
-    setLikes(prev => isCurrentlyLiked ? prev - 1 : prev + 1);
+    setLikes(prev => Math.max(0, isCurrentlyLiked ? prev - 1 : prev + 1));
 
     // Debounce the actual DB call to prevent spam
     if (likeTimeout.current) clearTimeout(likeTimeout.current);
@@ -143,11 +143,11 @@ export default function PostInteractions({
       if (isCurrentlyLiked) {
         // Unlike
         await supabase.from('post_interactions').delete().eq('post_id', postId).eq('user_id', user?.id).eq('type', 'like');
-        await supabase.rpc('decrement_likes', { post_id: postId });
+        await supabase.rpc('decrement_likes', { p_id: postId });
       } else {
         // Like
         await supabase.from('post_interactions').insert({ post_id: postId, user_id: user?.id, type: 'like' });
-        await supabase.rpc('increment_likes', { post_id: postId });
+        await supabase.rpc('increment_likes', { p_id: postId });
       }
       setIsInteracting(false);
     }, 500); // 500ms debounce
