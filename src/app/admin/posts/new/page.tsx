@@ -101,24 +101,42 @@ export default function NewPostPage() {
     if (!title.trim()) return alert("Please enter a title");
     setIsSaving(true);
     
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData.user) {
-      setIsSaving(false);
-      return alert("You must be logged in to save");
-    }
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("You must be logged in to save");
 
-    const { data: post, error: postError } = await supabase.from('posts').insert({
-      title,
-      content,
-      slug: slug || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
-      status,
-      author_id: userData.user.id,
-      thumbnail_url: thumbnail,
-    }).select().single();
+      let finalThumbnailUrl = thumbnail;
 
-    if (postError) {
-      alert("Error saving post: " + postError.message);
-    } else {
+      // Upload image to storage if a new file was selected
+      if (thumbnailFile) {
+        const fileExt = thumbnailFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `thumbnails/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('posts')
+          .upload(filePath, thumbnailFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('posts')
+          .getPublicUrl(filePath);
+        
+        finalThumbnailUrl = publicUrl;
+      }
+
+      const { data: post, error: postError } = await supabase.from('posts').insert({
+        title,
+        content,
+        slug: slug || title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, ''),
+        status,
+        author_id: userData.user.id,
+        thumbnail_url: finalThumbnailUrl,
+      }).select().single();
+
+      if (postError) throw postError;
+
       if (selectedCategories.length > 0) {
         const categoryLinks = selectedCategories.map(catId => ({
           post_id: post.id,
@@ -126,11 +144,14 @@ export default function NewPostPage() {
         }));
         await supabase.from('post_categories').insert(categoryLinks);
       }
+
       alert("Post saved successfully!");
       router.push("/admin/posts");
+    } catch (error: any) {
+      alert("Error: " + error.message);
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
   };
 
   const toggleCategory = (catId: string) => {

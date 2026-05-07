@@ -117,17 +117,38 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     if (!title.trim()) return alert("Please enter a title");
     setIsSaving(true);
     
-    const { error: postError } = await supabase.from('posts').update({
-      title,
-      content,
-      slug,
-      status,
-      thumbnail_url: thumbnail,
-    }).eq('id', id);
+    try {
+      let finalThumbnailUrl = thumbnail;
 
-    if (postError) {
-      alert("Error updating post: " + postError.message);
-    } else {
+      // Upload image to storage if a new file was selected
+      if (thumbnailFile) {
+        const fileExt = thumbnailFile.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `thumbnails/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('posts')
+          .upload(filePath, thumbnailFile);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('posts')
+          .getPublicUrl(filePath);
+        
+        finalThumbnailUrl = publicUrl;
+      }
+
+      const { error: postError } = await supabase.from('posts').update({
+        title,
+        content,
+        slug,
+        status,
+        thumbnail_url: finalThumbnailUrl,
+      }).eq('id', id);
+
+      if (postError) throw postError;
+
       // Update categories (delete then insert for simplicity)
       await supabase.from('post_categories').delete().eq('post_id', id);
       if (selectedCategories.length > 0) {
@@ -138,9 +159,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         await supabase.from('post_categories').insert(categoryLinks);
       }
       alert("Post updated successfully!");
+    } catch (error: any) {
+      alert("Error: " + error.message);
+    } finally {
+      setIsSaving(false);
     }
-    
-    setIsSaving(false);
   };
 
   const handleDelete = async () => {
