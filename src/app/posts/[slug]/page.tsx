@@ -158,23 +158,11 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             isLoggedIn={!!user} 
           />
         </div>
-        
-        <footer className="mt-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-6">
-             <div className="w-16 h-16 relative">
-                <Image src="/logo_nobg.png" alt="GradBuzz Logo" fill className="object-contain" />
-             </div>
-             <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                 <p className="text-[12px] text-brand-midnight/30">
-                    Initiative by Sikshanext Private Limited.
-                 </p>
-                 <div className="hidden md:block w-1 h-1 bg-brand-midnight/10 rounded-full" />
-                 <p className="text-[12px] text-brand-midnight/20">
-                    © 2026 All rights reserved.
-                 </p>
-             </div>
-          </div>
-        </footer>
+
+        {/* Newsletter Section */}
+        <div>
+          <NewsletterSubscribe />
+        </div>
       </main>
 
       {/* Read Next Section */}
@@ -203,10 +191,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
         </section>
       )}
 
-      {/* Newsletter Section */}
-      <div className="px-6 pb-20">
-        <NewsletterSubscribe />
-      </div>
+      {/* Footer */}
+      <footer className="max-w-7xl mx-auto px-6 pb-20 pt-12 border-t border-brand-border flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-6">
+           <div className="w-16 h-16 relative">
+              <Image src="/logo_nobg.png" alt="GradBuzz Logo" fill className="object-contain" />
+           </div>
+           <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
+               <p className="text-[12px] text-brand-midnight/30">
+                  Initiative by Sikshanext Private Limited.
+               </p>
+               <div className="hidden md:block w-1 h-1 bg-brand-midnight/10 rounded-full" />
+               <p className="text-[12px] text-brand-midnight/20">
+                  © 2026 All rights reserved.
+               </p>
+           </div>
+        </div>
+      </footer>
     </article>
   );
 }

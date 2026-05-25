@@ -53,7 +53,7 @@ export default function NewsletterSubscribe() {
         <button
           type="submit"
           disabled={status === 'loading'}
-          className="px-6 py-3 rounded-xl bg-brand-green text-white font-bold hover:bg-brand-green/90 transition-all disabled:opacity-50 whitespace-nowrap"
+          className="px-6 py-3 rounded-xl bg-brand-green text-brand-midnight font-bold hover:bg-brand-green/90 transition-all disabled:opacity-50 whitespace-nowrap"
         >
           {status === 'loading' ? 'Joining...' : 'Subscribe'}
         </button>

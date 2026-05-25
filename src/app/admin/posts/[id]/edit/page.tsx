@@ -134,6 +134,25 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       setSelectedCategories([...selectedCategories, data.id]);
       setNewCategoryName("");
     } else if (error) {
+      // 23505 is PostgreSQL code for unique key violation (category already exists)
+      if (error.code === '23505') {
+        const { data: existingData } = await supabase
+          .from('categories')
+          .select('id, name')
+          .eq('name', newCategoryName.trim())
+          .single();
+
+        if (existingData) {
+          if (!availableCategories.some(cat => cat.id === existingData.id)) {
+            setAvailableCategories([...availableCategories, existingData]);
+          }
+          if (!selectedCategories.includes(existingData.id)) {
+            setSelectedCategories([...selectedCategories, existingData.id]);
+          }
+          setNewCategoryName("");
+          return;
+        }
+      }
       alert("Error creating category: " + error.message);
     }
   };
