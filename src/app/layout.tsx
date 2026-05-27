@@ -89,6 +89,7 @@ export default function RootLayout({
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'GradBuzz',
+    alternateName: ['GradBuzz', 'gradbuzz'],
     url: 'https://gradbuzz.sikshanext.in',
     description: 'A premium knowledge platform for students featuring raw, unfiltered advice from peers navigating placements, internships, and higher studies.',
     publisher: {

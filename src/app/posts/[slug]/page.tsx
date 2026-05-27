@@ -108,9 +108,9 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
             {post.title}
           </h1>
           
-          <div className="flex flex-wrap items-center gap-8 py-8 border-y border-brand-border/50">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full overflow-hidden border border-brand-border relative bg-white shrink-0">
+          <div className="flex items-center justify-between gap-3 sm:gap-6 py-6 md:py-8 border-y border-brand-border/50 w-full">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-full overflow-hidden border border-brand-border relative bg-white shrink-0">
                  <Image 
                   src={authorAvatar} 
                   alt={authorName} 
@@ -119,23 +119,23 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   unoptimized={true}
                  />
               </div>
-              <div>
-                <p className="text-[13px] font-semibold text-brand-midnight leading-none mb-1">{authorName}</p>
-                <p className="text-[12px] text-brand-midnight/40">
+              <div className="min-w-0">
+                <p className="text-[12px] md:text-[13px] font-semibold text-brand-midnight leading-none mb-1 truncate">{authorName}</p>
+                <p className="text-[10px] md:text-[12px] text-brand-midnight/40 truncate">
                   {new Date(post.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-8">
+            <div className="flex items-center gap-2 sm:gap-6 md:gap-8 shrink-0">
               <div className="w-px h-8 bg-brand-border/50 hidden sm:block" />
               <div>
-                <p className="text-[12px] text-brand-midnight/30 leading-none mb-1">Read time</p>
-                <p className="text-sm font-bold text-brand-midnight">5 Mins</p>
+                <p className="text-[10px] md:text-[12px] text-brand-midnight/30 leading-none mb-1">Read time</p>
+                <p className="text-xs md:text-sm font-bold text-brand-midnight">5 Mins</p>
               </div>
             </div>
 
-            <div className="ml-auto">
+            <div className="ml-auto shrink-0">
               <ShareButton title={post.title} />
             </div>
           </div>

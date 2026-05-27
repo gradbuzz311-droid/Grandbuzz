@@ -24,9 +24,9 @@ export default function ShareButton({ title }: ShareButtonProps) {
   return (
     <button 
       onClick={handleShare}
-      className="flex items-center gap-2 px-6 py-3 bg-brand-midnight text-white rounded-xl text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-midnight/10"
+      className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-3 bg-brand-midnight text-white rounded-xl text-[9px] sm:text-[10px] font-black uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-brand-midnight/10"
     >
-      <Share2 size={14} />
+      <Share2 size={12} className="sm:w-3.5 sm:h-3.5" />
       Share Story
     </button>
   );
