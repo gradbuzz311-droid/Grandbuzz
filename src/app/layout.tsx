@@ -23,9 +23,9 @@ export const metadata: Metadata = {
   },
   description: "A premium knowledge platform for students featuring raw, unfiltered advice from peers navigating placements, internships, and higher studies.",
   keywords: ["student advice", "placements", "internships", "higher studies", "resume review", "coding interviews", "campus life"],
-  authors: [{ name: "Sikshanext Private Limited" }],
+  authors: [{ name: "GradBuzz Team" }],
   creator: "GradBuzz Team",
-  publisher: "Sikshanext Private Limited",
+  publisher: "GradBuzz",
   openGraph: {
     type: "website",
     locale: "en_IN",
